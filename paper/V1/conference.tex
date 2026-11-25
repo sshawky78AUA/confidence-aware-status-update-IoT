@@ -1,4 +1,3 @@
-%% V1 snapshot (2026-11-25, before the nu data-rule rerun). Figures in figures_v1/, results in simulation/results_v1/.
 %% Conference version (IEEEtran, conference mode). Targets: IEEE Globecom 2027 / WiOpt 2027.
 %% The journal version is journal.tex in the same project. Figures and refs.bib are shared.
 \documentclass[conference]{IEEEtran}
@@ -100,7 +99,7 @@ This work & \checkmark & \checkmark & \checkmark & \checkmark & & & & & \\
 %% =====================================================================
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures_v1/fig_scenario_conf.pdf}
+\includegraphics[width=\columnwidth]{figures/fig_scenario_conf.pdf}
 \caption{System model. The UAV labels each photo on board, then stays silent, sends its label (blue) or uploads the photo to the ground classifier (orange). The GS status is the last label received. Bottom: the AoII grows while the GS is wrong; right: the Markov chain of $X(t)$. Numbers are example values (Section~\ref{sec:results}).}
 \label{fig:system}
 \end{figure}
@@ -264,7 +263,7 @@ Let $f_a=Vq_aG_a-\lambda E_a$. Since $r,w<\tfrac12$, $G_1$, $G_2$ have the form 
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures_v1/regions.pdf}
+\includegraphics[width=\columnwidth]{figures/regions.pdf}
 \caption{Example of the decisions of~\eqref{eq:rule} versus slots since the last delivery and confidence $c$: GS reports ``not flooded'' with $5\%$ initial doubt, UAV $1.2$\,km from the GS ($q_1\approx1$, $q_2=0.78$, $E_1=20$\,mJ, $E_2=190$\,mJ), $\lambda/V=2$\,J$^{-1}$, $\nu=0.25$. An agreeing label is never sent; a disagreeing frame is uploaded when unsure and labeled when confident (Proposition~\ref{prop:threshold}).}
 \label{fig:regions}
 \end{figure}
@@ -333,14 +332,14 @@ The budget is proved; the AoII side is heuristic, since the $O(1/V)$ gap of~\cit
 
 \begin{figure*}[t]
 \centering
-\includegraphics{figures_v1/fig_budget.pdf}
+\includegraphics{figures/fig_budget.pdf}
 \caption{Performance versus the budget $\bar E$: $20$ held-out runs per point, $95\%$ confidence intervals. (a) Average AoII. (b) Share of slots with the GS wrong. (c) AoII reduction by CA-DPP relative to each policy (paired; positive favors CA-DPP). CA-DPP beats three baselines at every budget and the AoII-threshold policy at tight budgets.}
 \label{fig:budget}
 \end{figure*}
 
 \begin{figure*}[t]
 \centering
-\includegraphics{figures_v1/fig_sensitivity.pdf}
+\includegraphics{figures/fig_sensitivity.pdf}
 \caption{Sensitivity ($20$ runs per point): (a) on-board accuracy and (b) blocked share $\rho_{\rm b}/(\rho_{\rm b}+\rho_{\rm u})$ at $\bar E=0.5$\,mJ/slot; (c) raw frame size at $\bar E=2$\,mJ/slot. CA-DPP degrades least as the classifier weakens.}
 \label{fig:sens}
 \end{figure*}
@@ -377,7 +376,7 @@ As the share of blocked slots grows from $0$ to $50\%$ (Fig.~\ref{fig:sens}(b)),
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures_v1/fig_V_mix.pdf}
+\includegraphics[width=\columnwidth]{figures/fig_V_mix.pdf}
 \caption{(a) AoII (left) and energy spent (right, dashed) of CA-DPP vs.\ $V$ at $\bar E=0.5$\,mJ/slot; shaded: within $4\%$ of the budget (dotted). (b) Share of unblocked slots with a label or upload vs.\ distance to the GS at $\bar E=2$\,mJ/slot: uploads dominate near the GS, labels beyond about $0.8$\,km.}
 \label{fig:Vmix}
 \end{figure}

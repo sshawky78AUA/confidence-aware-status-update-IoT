@@ -1,7 +1,9 @@
-%% V1 snapshot (2026-11-25, before the nu data-rule rerun). Figures in figures_v1/, results in simulation/results_v1/.
-%% Elsevier Computer Networks version (elsarticle). Derived from journal.tex (IEEE version), which is kept unchanged.
-\documentclass[preprint,12pt]{elsarticle}
+%% Master draft, journal version (IEEE Internet of Things Journal, double column).
+%% The conference version (conference.tex, same project) is cut from this text. Figures and refs.bib are shared.
+\documentclass[journal]{IEEEtran}
+\IEEEoverridecommandlockouts
 
+\usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
 \let\proof\relax
 \let\endproof\relax
@@ -11,14 +13,7 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{xcolor}
-\usepackage[T1]{fontenc}
-\usepackage{lmodern}
-\usepackage{xurl}
-\setlength{\emergencystretch}{2em}
-\usepackage[margin=1in]{geometry}
 \usepackage{tikz}
-\usepackage{lineno}
-\journal{Computer Networks}
 \usetikzlibrary{arrows.meta,positioning}
 
 \newtheorem{assumption}{Assumption}
@@ -43,33 +38,24 @@
 
 \begin{document}
 
-\begin{frontmatter}
-
 \title{Speak When Sure, Ask When Unsure: Confidence-Aware Status Updates from On-Board Classifiers in Aerial IoT}
 
-\author{Sameh Hosny}
-\ead{sameh.hosny@aua.am}
-\affiliation{organization={Electrical and Computer Engineering Department, American University of Armenia},
-            addressline={40 Marshal Baghramyan Avenue},
-            city={Yerevan},
-            postcode={0019},
-            country={Armenia}}
+\author{Sameh~Hosny%
+\thanks{S. Hosny is with the Electrical and Computer Engineering Department, American University of Armenia, Yerevan, Armenia (e-mail: sameh.hosny@aua.am).}}
+
+\maketitle
 
 \begin{abstract}
 Internet of Things (IoT) devices increasingly classify sensor data on board and transmit a few-byte label instead of raw data, but a small on-board classifier errs, and a wrong label misleads the receiver. We study an unmanned aerial vehicle (UAV) that monitors a scene for a ground station (GS) and, in every slot, stays silent, sends its label, or uploads the raw frame to a more accurate ground classifier. It aims to minimize the long-run average age of incorrect information (AoII) at the GS under an energy budget and an intermittent link. Since the UAV never observes the true state, we formulate a constrained partially observable Markov decision process and show that a belief over the current AoII, updated with the calibrated confidence of each frame, is a sufficient statistic. We derive the one-step expected AoII of each action in closed form, prove that a label agreeing with the GS is never worth sending, and show that the drift-plus-penalty rule reduces to confidence thresholds ordered silent, raw, label. The resulting policy, CA-DPP, meets the energy budget on every sample path. On Sentinel-2 flood-mapping traces, it lowers the average AoII by 52\% to 75\% relative to pre-identification and age-threshold policies for budgets up to 2\,mJ per slot. Relative to an AoII-threshold policy, it lowers the AoII by $22\%\pm12\%$ at 0.25\,mJ per slot and by up to 49\% when the on-board classifier is weak. When the classifier is accurate and energy is ample, CA-DPP and the AoII-threshold policy perform the same within statistical error.
 \end{abstract}
 
-\begin{keyword}
-Age of incorrect information \sep on-board inference \sep unmanned aerial vehicles \sep Internet of Things \sep Lyapunov optimization \sep POMDP
-\end{keyword}
-
-\end{frontmatter}
-
-\linenumbers
+\begin{IEEEkeywords}
+Age of incorrect information, on-board inference, aerial IoT, UAV, Lyapunov optimization, POMDP, calibration.
+\end{IEEEkeywords}
 %% =====================================================================
 \section{Introduction}\label{sec:intro}
 %% =====================================================================
-Many Internet of Things (IoT) devices no longer send what they sense. A camera trap reports that it saw an animal, a nanosatellite reports that a pixel block contains a ship, and an unmanned aerial vehicle (UAV) that surveys a flood reports that the area below it is under water. Each of these devices runs a small classifier on board and transmits its decision, a label of a few bytes, instead of an image of tens of kilobytes~\cite{shamsoshoara2021flame,kyrkou2020aider,hosny2026tinysem}. For a battery-powered device on a weak wireless link, this saves most of the energy and airtime that a raw upload would cost.
+\IEEEPARstart{M}{any} Internet of Things (IoT) devices no longer send what they sense. A camera trap reports that it saw an animal, a nanosatellite reports that a pixel block contains a ship, and an unmanned aerial vehicle (UAV) that surveys a flood reports that the area below it is under water. Each of these devices runs a small classifier on board and transmits its decision, a label of a few bytes, instead of an image of tens of kilobytes~\cite{shamsoshoara2021flame,kyrkou2020aider,hosny2026tinysem}. For a battery-powered device on a weak wireless link, this saves most of the energy and airtime that a raw upload would cost.
 
 The saving comes at a price. A classifier small enough to run on a UAV or a microcontroller makes mistakes, and it makes them most often on ambiguous inputs: a flooded field under cloud shadow, a dry field after rain. Once the transmitted content is an inference, a delivered update can be wrong. The receiver then holds a fresh but wrong estimate, and it keeps it until a later update corrects it. The age of information (AoI) does not register this error, because it resets on every delivery whether the content is right or wrong. The age of incorrect information (AoII)~\cite{maatouk2020aoii} grows while the receiver's estimate differs from the true state, so it penalizes wrong estimates as well as stale ones.
 
@@ -114,7 +100,7 @@ Table~\ref{tab:positioning} compares the closest works on four elements: (E1) a 
 \label{tab:positioning}
 \centering\footnotesize
 \setlength{\tabcolsep}{3pt}
-\resizebox{0.75\textwidth}{!}{%
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Work & (E1) per-sample & (E2) AoII on & (E3) online & (E4) silent/\\
@@ -144,7 +130,7 @@ The GS has no sensor of its own. Everything it knows about the patch below the U
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.55\textwidth]{figures_v1/fig_scenario.pdf}
+\includegraphics[width=\columnwidth]{figures/fig_scenario.pdf}
 \caption{System model. A UAV flies over a disaster area, photographs the patch below it and labels each photo on board with a confidence $c(t)$. In each slot it stays silent, sends its label (blue) or uploads the photo to the more accurate ground classifier (orange). The GS keeps the last label received and acks each decoded packet. Inset: the AoII grows while the GS status is wrong and resets when it becomes right. Values shown are examples from Section~\ref{sec:results}.}
 \label{fig:system}
 \end{figure}
@@ -153,7 +139,7 @@ The GS has no sensor of its own. Everything it knows about the patch below the U
 \caption{Main notation}\label{tab:notation}
 \centering\footnotesize
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}p{0.45\textwidth}ll@{}}
+\begin{tabular}{@{}p{0.52\columnwidth}ll@{}}
 \toprule
 Meaning & Symbol & Defined in\\
 \midrule
@@ -179,7 +165,7 @@ Value of an action; its energy price & $G_a$; $Z(t)$, $V$ & Secs.~\ref{sec:struc
 \subsection{Event Dynamics}\label{sec:src}
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.5\textwidth]{figures_v1/fig_markov.pdf}
+\includegraphics[width=0.85\columnwidth]{figures/fig_markov.pdf}
 \caption{Two-state Markov chain of the patch state $X(t)$. A dry patch ($0$) is followed by a flooded one with probability $p_0$, and a flooded patch ($1$) by a dry one with probability $p_1$. With $p_0,p_1<\frac12$ the state tends to persist from one footprint to the next.}
 \label{fig:markov}
 \end{figure}
@@ -222,7 +208,7 @@ After a raw upload, the ground classifier labels the frame. We denote its label 
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{figures_v1/fig_inference.pdf}
+\includegraphics[width=\textwidth]{figures/fig_inference.pdf}
 \caption{Classifier outputs on the Sen1Floods11 test chips. (a) Reliability diagram: fraction of truly flooded footprints versus the predicted flood probability, for the on-board model, its noisiest variant and the ground model, with their expected calibration errors (ECE). All three are well calibrated. (b) Error rate of the on-board and ground labels versus the on-board confidence $c$. The on-board error follows $1-c$ (dotted); the ground model also errs more on hard frames. (c) $120$ consecutive footprints of one test chip: flooded footprints shaded, on-board flood probability (line) and wrong labels (crosses). Errors come in runs, mostly missed floods.}
 \label{fig:inference}
 \end{figure*}
@@ -510,7 +496,7 @@ Let the UAV be $1.2$\,km from the GS, where $q_1\approx1$, $q_2=0.78$, $E_1=20$\
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.55\textwidth]{figures_v1/regions.pdf}
+\includegraphics[width=\columnwidth]{figures/regions.pdf}
 \caption{Example of the decisions of~\eqref{eq:rule} versus the slots since the last delivery and the on-board confidence $c$. The GS reports ``not flooded'' with $5\%$ initial doubt, the UAV is $1.2$\,km from the GS ($q_1\approx1$, $q_2=0.78$, $E_1=20$\,mJ, $E_2=190$\,mJ), $\lambda/V=2$\,J$^{-1}$ and $\nu=0.25$. (a) An agreeing label is never sent; the frame is uploaded once the status is old, unless the UAV is very confident. (b) A disagreeing frame is uploaded when the UAV is unsure and sent as a label when it is confident (Proposition~\ref{prop:threshold}). Steps come from the binned estimate of $\ee_{\rm g}(c)$.}
 \label{fig:regions}
 \end{figure}
@@ -638,7 +624,7 @@ Energy budget $\bar E$ & $0.25$ to $10$\,mJ/slot\\
 \begin{table*}[t]
 \caption{Trace-driven results at two energy budgets (mean $\pm$ 95\% confidence half-width over 20 held-out runs: 5-fold cross-validation over chips, 4 runs per fold). $\Delta$: change in average AoII obtained by CA-DPP relative to the policy in that row (negative means CA-DPP is lower), with paired 95\% confidence interval, paired $t$-test $p$-value, and the number of folds (out of 5) in which CA-DPP has the lower mean.}
 \label{tab:results}
-\centering\footnotesize\setlength{\tabcolsep}{1.2pt}
+\centering\footnotesize\setlength{\tabcolsep}{3.2pt}
 \begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}cccccccc@{}}
 \toprule
  & \multicolumn{4}{c}{$\bar E=0.25$\,mJ/slot} & \multicolumn{4}{c}{$\bar E=2$\,mJ/slot}\\
@@ -679,7 +665,7 @@ Each selected policy then runs four times on the held-out fold. Each run visits 
 
 \begin{figure*}[t]
 \centering
-\includegraphics{figures_v1/fig_budget.pdf}
+\includegraphics{figures/fig_budget.pdf}
 \caption{Performance versus the energy budget $\bar E$: $20$ held-out runs per point ($5$-fold cross-validation over chips) with $95\%$ confidence intervals. (a) Average AoII. (b) Share of slots in which the GS is wrong. (c) AoII reduction of CA-DPP relative to each policy, with paired intervals (positive favors CA-DPP). CA-DPP beats the pre-identification, age-threshold and always-offload policies at every budget, and the AoII-threshold policy at $0.25$\,mJ/slot; from $1$\,mJ/slot on the two perform the same within statistical error. Baselines adapted from~\cite{zakeri2023aoiieh,gan2025taoi,pehlivanoglu2026orbit,basnayaka2025aomi}.}
 \label{fig:budget}
 \end{figure*}
@@ -690,7 +676,7 @@ Against the AoII-threshold policy, the outcome depends on the budget. At $0.25$\
 
 \begin{figure}[!tb]
 \centering
-\includegraphics[width=0.55\textwidth]{figures_v1/fig_path.pdf}
+\includegraphics[width=\columnwidth]{figures/fig_path.pdf}
 \caption{Sample path of CA-DPP over $120$ slots at $\bar E=0.5$\,mJ/slot ($V=0.01$, $\nu=0.25$). (a) True state (shaded when flooded), GS status, and the slots in which the UAV sends a label (triangles) or uploads the frame (diamond). (b) AoII of the GS status (left axis) and the belief $\mu_t$ that the GS is wrong (right axis). The belief rises with each disagreeing frame until a label is sent, which resets the AoII.}
 \label{fig:path}
 \end{figure}
@@ -705,7 +691,7 @@ Raw uploads pay off at larger budgets. Without them, the AoII stays at $0.43$ fr
 \subsection{Weak Classifiers, Blockage and Payload}\label{res:sens}
 \begin{figure*}[t]
 \centering
-\includegraphics{figures_v1/fig_sensitivity.pdf}
+\includegraphics{figures/fig_sensitivity.pdf}
 \caption{Sensitivity of the average AoII, $20$ held-out runs per point. (a) On-board accuracy (base model and four noisy variants) and (b) share of blocked slots $\rho_{\rm b}/(\rho_{\rm b}+\rho_{\rm u})$, both at $\bar E=0.5$\,mJ/slot. (c) Raw frame size $L_2$ at $\bar E=2$\,mJ/slot. CA-DPP degrades least as the classifier weakens, blockage hurts all policies without changing their order, and larger frames make uploads less useful.}
 \label{fig:sens}
 \end{figure*}
@@ -717,7 +703,7 @@ As the share of blocked slots grows from $0$ to $50\%$ (Fig.~\ref{fig:sens}(b)),
 \subsection{The Weight $V$ and the Role of Mobility}\label{res:V}
 \begin{figure}[!tb]
 \centering
-\includegraphics[width=0.55\textwidth]{figures_v1/fig_V_mix.pdf}
+\includegraphics[width=\columnwidth]{figures/fig_V_mix.pdf}
 \caption{(a) Average AoII of CA-DPP (left axis) and energy spent (right axis, dashed) versus $V$ at $\bar E=0.5$\,mJ/slot. In the shaded range the energy stays within $4\%$ of the budget (dotted); a larger $V$ lowers the AoII but overspends. (b) Share of unblocked slots with a label or a raw upload versus the distance to the GS, at $\bar E=2$\,mJ/slot. Uploads dominate near the GS, and labels take over beyond about $0.8$\,km.}
 \label{fig:Vmix}
 \end{figure}
@@ -751,19 +737,10 @@ Five limitations remain. First, the policy is myopic, and its gap to the optimal
 %% =====================================================================
 We studied status updates from an IoT device whose sensor is its own classifier, with a UAV mapping a flood as the running example. A belief over the AoII of the GS status, updated with the calibrated confidence of each frame, gives closed-form values of the three actions: agreeing labels are worthless, and the per-slot decision has confidence thresholds ordered silent, raw, label. CA-DPP, built on them, meets the energy budget on every sample path. On flood-mapping traces under chip-level cross-validation, it beats adaptations of three recent designs at every budget up to $5$\,mJ per slot, and an AoII-threshold policy when energy is scarce or the classifier is weak. Raw uploads pay off near the GS at larger budgets. Next steps are a belief that models correlated errors, and UAV imagery with measured energy.
 
-\section*{Declaration of competing interest}
-The author declares that he has no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+\section*{Acknowledgment}
+The author used Claude (Anthropic), a generative AI system, to assist with drafting and editing the text of all sections, writing the simulation and plotting code, and preparing the figures. All content was reviewed and verified by the author, who takes full responsibility for it.
 
-\section*{Funding}
-This research did not receive any specific grant from funding agencies in the public, commercial, or not-for-profit sectors.
-
-\section*{Data availability}
-The Sen1Floods11 dataset~\cite{bonafilia2020sen1floods11} is publicly available. The simulation code, inference traces and scripts that produce every figure and table are available at \url{https://github.com/sshawky78AUA/confidence-aware-status-update-IoT}.
-
-\section*{Declaration of generative AI and AI-assisted technologies in the writing process}
-During the preparation of this work the author used Claude (Anthropic) in order to assist with drafting and editing the text, writing the simulation and plotting code, and preparing the figures. After using this tool, the author reviewed and edited the content as needed and takes full responsibility for the content of the publication.
-
-\appendix
+\appendices
 \section{Proof of Lemma~\ref{lem:mono}}\label{app:mono}
 Let $y=\Lambda_t^{\nu}$, which increases with $\Lambda_t$. By~\eqref{eq:post}, the mass at every $\delta>0$ is multiplied by $y/D$ and the mass at $\delta=0$ by $1/D$, with $D=1-\mu^-_t+\mu^-_ty$. Hence
 \[
@@ -798,7 +775,7 @@ Vq_aG_a-Z(t)E_a(g)<V(\Delta_{\max}+1)-z^\star E_{\min}=0=f_0,
 \]
 so CA-DPP stays silent, and~\eqref{eq:Z} gives $Z(t+1)=\max\{Z(t)-\bar E,0\}\le Z(t)$. If $Z(t)\le z^\star$, then $Z(t+1)\le Z(t)+E_{\max}\le z^\star+E_{\max}$. Starting from $Z(0)=0$, induction on $t$ gives $Z(t)\le z^\star+E_{\max}=Z_{\max}$ for all $t$. Inserting this bound in~\eqref{eq:Zbound} gives the energy bound for every $T$, and taking expectations and $T\to\infty$ gives~\eqref{eq:budget}. \hfill$\blacksquare$
 
-\bibliographystyle{elsarticle-num}
+\bibliographystyle{IEEEtran}
 \bibliography{refs}
 
 \end{document}
