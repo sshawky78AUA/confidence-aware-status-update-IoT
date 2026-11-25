@@ -10,7 +10,7 @@ import sim, numpy as np, json, os, sys
 from multiprocessing import Pool
 from scipy import stats
 OUT = sys.argv[1] if len(sys.argv) > 1 else 'results'; os.makedirs(OUT, exist_ok=True)
-K = 5; TUNE_SEEDS = (101, 102); TEST_SEEDS = (1, 2, 3, 4)
+K = int(os.environ.get('KFOLD', 5)); TUNE_SEEDS = (101, 102); TEST_SEEDS = (1, 2, 3, 4)
 CH = np.random.default_rng(0).permutation(np.unique(sim.TR['chip_all']))
 FOLDS = [tuple(int(c) for c in CH[f::K]) for f in range(K)]
 def split(f, part):
@@ -18,11 +18,11 @@ def split(f, part):
     return ('cv', tu, tu, 1) if part == 'tune' else ('cv', ev, tu, 4)
 def VG(B):                                # V window per budget (the virtual queue scales with 1/budget)
     return [0.001, 0.003, 0.01, 0.03] if B <= 0.0005 else ([0.03, 0.1, 0.3, 1] if B <= 0.002 else [0.3, 1, 3, 10])
-BEL = [0, 0.25, 0.5]                      # belief: 0 symmetric update; else prior-corrected with discount nu
+BEL = ['rule']                            # belief: prior-corrected, discount nu = (1-rho)/(1+rho) from the tuning folds' error correlation
 BETA = [0]                                # look-ahead discount; 0.5 and 0.8 were tried and did not help (dropped; see git history)
 GRIDS = {'gan': [None], 'oracle': [None],
          'zakeri': [1, 2, 3, 5], 'pehl': [(A, q) for A in (1, 3, 10) for q in (0.5, 0.9, 1.1)],
-         'basn': [1, 2, 5, 10, 50]}
+         'basn': [1, 2, 5, 10, 50], 'muthr': [0.3, 0.5, 0.7, 0.8, 0.9, 0.95, 0.98]}
 POLS = ['cadpp', 'cadpp_blind', 'cadpp_label', 'zakeri', 'gan', 'pehl', 'basn', 'oracle']
 
 def job(a):
@@ -113,4 +113,17 @@ if __name__ == '__main__':
         r, _ = sweep([('mix', 0.002, {'_mix': True})], ['cadpp'])
         LT = sim.link_tables(sim.P)
         json.dump(dict(dist=LT['dist'].tolist(), q2=LT['q2'].tolist(), E2=LT['E2'].tolist(), mix=r['mix']['cadpp']['mix']), open(f'{OUT}/mix.json', 'w'))
+    if 'budget_exact' in what:   # robustness: exact fading-averaged energy instead of the mean-SNR approximation
+        r, _ = sweep([(str(B), B, {'energy': 'exact'}) for B in (0.00025, 0.0005, 0.001, 0.002, 0.005, 0.01)])
+        json.dump(r, open(f'{OUT}/budget_exact.json', 'w')); print('budget_exact', flush=True)
+    if 'acc_exact' in what:
+        r, _ = sweep([(k, 0.0005, {'onboard': k, 'energy': 'exact'}) for k in ('on8', 'n2', 'n4', 'n6', 'n8')])
+        json.dump(r, open(f'{OUT}/acc_exact.json', 'w')); print('acc_exact', flush=True)
+    if 'muthr' in what:  # extra baseline: threshold on the CA-DPP belief (prior-corrected, nu = 0.25)
+        r, _ = sweep([(str(B), B, {}) for B in (0.00025, 0.0005, 0.001, 0.002, 0.005, 0.01)], ['cadpp', 'muthr'])
+        json.dump(r, open(f'{OUT}/muthr.json', 'w')); print('muthr', flush=True)
+    if 'cv10' in what:   # more clusters for the fold-level tests (run with KFOLD=10)
+        r, _ = sweep([(str(B), B, {}) for B in (0.00025, 0.0005)] + [(k, 0.0005, {'onboard': k}) for k in ('n6', 'n8')],
+                     ['cadpp', 'zakeri', 'cadpp_blind'])
+        json.dump(r, open(f'{OUT}/cv{K}.json', 'w')); print('cv', K, flush=True)
     print('done', flush=True)

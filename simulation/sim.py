@@ -24,7 +24,13 @@ def link_tables(P):
     out = dict(dist=dh, snr_db=10*np.log10(snr))
     for a, L in ((1, P['L1']), (2, P['L2'])):
         out[f'q{a}'] = np.exp(-(2**(L/(P['W']*P['tmax'])) - 1)/snr)
-        out[f'E{a}'] = P['Pr']*np.minimum(L/(P['W']*np.log2(1+snr)), P['tmax']) + P['Eo']
+        if P.get('energy', 'mean') == 'exact':   # fading-averaged: Pr*E_h[min(L/C(h), tmax)] + Eo, |h|^2 ~ Exp(1)
+            x = np.concatenate([np.linspace(0, 1e-3, 200, endpoint=False), np.logspace(-3, np.log10(40), 4000)])
+            wx = np.gradient(x)*np.exp(-x)                       # quadrature weights for E[f(|h|^2)]
+            tt = np.minimum(L/(P['W']*np.log2(1+np.outer(snr, x)) + 1e-30), P['tmax'])
+            out[f'E{a}'] = P['Pr']*(tt*wx).sum(1)/wx.sum() + P['Eo']
+        else:                                     # mean-SNR approximation, eq. (11)
+            out[f'E{a}'] = P['Pr']*np.minimum(L/(P['W']*np.log2(1+snr)), P['tmax']) + P['Eo']
     return out
 
 def model_params(P, chips=None):
@@ -42,8 +48,13 @@ def model_params(P, chips=None):
     prec = np.array([(Xv[lv == l] == l).mean() for l in (0, 1)])   # P{X = l | label l}, for the blind ablation
     p01, p10 = float(TR['p01']), float(TR['p10'])
     pi = np.array([p10, p01])/(p01+p10)                              # stationary class prior
+    # data rule for the discount: lag-one correlation rho of the on-board error indicator between consecutive
+    # footprints of the same chip; n correlated frames carry about n(1-rho)/(1+rho) frames' worth of evidence
+    chv = TR['chip_va'] if chips is None else TR['chip_all'][m]
+    w = ((pv >= .5) != Xv).astype(float); same = chv[1:] == chv[:-1]
+    rho = float(np.corrcoef(w[:-1][same], w[1:][same])[0, 1])
     return dict(p=np.array([p01, p10]), edges=edges, eps_e=eps_e, pi=pi, prec=prec,
-                eps_e_mean=wrong_g.mean(), acc_on=acc_on)
+                eps_e_mean=wrong_g.mean(), acc_on=acc_on, rho=rho, nu_rule=(1-rho)/(1+rho))
 
 def lookahead(pflip, beta, delta):
     """For each value x of the new GS estimate: weights f(delta) = a(delta+1) + b - R and offset R, where
@@ -72,11 +83,14 @@ def run(policy, budget, par=None, seed=1, P=P, mixlog=False, split='te', log=Fal
         P = dict(P)
         if len(par) > 2: P['beta'] = par[2]
         if par[1] == 0: P['prior_fix'] = False     # symmetric update: c itself is the likelihood
+        elif par[1] == 'rule': P['gamma'] = 'rule'  # nu = (1-rho)/(1+rho), rho estimated on the tuning data
         else: P['gamma'] = par[1]
         par = par[0]
+    if policy == 'muthr': P = dict(P); P['gamma'] = 0.25   # the belief CA-DPP uses most often
     cv = isinstance(split, (tuple, list))
     LT = link_tables(P); MP = model_params(P, split[2] if cv else None); per = P['period']; Dm = P['Dmax']
     pflip = MP['p']; idx, rng = make_trace(seed, split=split); T = len(idx)
+    if P.get('gamma') == 'rule': P = dict(P); P['gamma'] = MP['nu_rule']
     sfx = 'all' if cv else split
     X_tr = TR['X' if sfx == 'te' else 'X_'+sfx][idx]; pon = TR[P['onboard']+'_'+sfx][idx]; pgr = TR['gr_'+sfx][idx]
     ul = rng.random(T); ub = rng.random(T)
@@ -137,6 +151,8 @@ def run(policy, budget, par=None, seed=1, P=P, mixlog=False, split='te', log=Fal
                 a = 1 if X != Xh else 0
             elif policy == 'zakeri':     # AoII threshold, treating the on-board label as the truth
                 if run_len >= par: a = 1
+            elif policy == 'muthr':      # belief threshold: same belief as CA-DPP, label sent when P{GS wrong} > theta
+                if d and mu_t > par: a = 1
             else: raise ValueError(policy)
             if not policy.startswith('cadpp') and a > 0 and Ein + E[a] > budget*(t+1) + P['credit']:
                 a = 1 if (a == 2 and Ein + E[1] <= budget*(t+1) + P['credit'] and policy != 'basn') else 0
