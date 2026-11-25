@@ -52,7 +52,7 @@ fig.tight_layout(w_pad=1.8, rect=(0, 0.035, 1, 1))
 fig.text(0.5, 0.0, r'energy budget $\bar E$ (mJ/slot)', ha='center', va='bottom', fontsize=8); fig.savefig(FIG+'fig_budget.pdf'); 
 
 # ---------------- Fig. 4: sensitivity ----------------
-fig, ax = plt.subplots(1, 3, figsize=(PAGE_W, 1.32), sharey=True)
+fig, ax = plt.subplots(1, 3, figsize=(PAGE_W, 1.6), sharey=True)
 a = json.load(open(f'{R}/acc.json')); ks = ['on8', 'n2', 'n4', 'n6', 'n8']
 ACC = json.load(open(f'{R}/acc_values.json')) if False else None
 import numpy as _np
@@ -69,13 +69,13 @@ ax[2].set(xscale='log', yscale='log', xlabel='raw frame size $L_2$ (kB)')
 ax[2].set_xticks([12.5, 25, 50, 100, 200]); ax[2].set_xticklabels(['12.5', '25', '50', '100', '200']); ax[2].minorticks_off()
 for a_, t, nt in zip(ax, '(a) (b) (c)'.split(), [r'weaker on-board model, $\bar E=0.5$ mJ/slot', r'blockage, $\bar E=0.5$ mJ/slot', r'frame size, $\bar E=2$ mJ/slot']): tag(a_, t, nt)
 ax[0].set_ylim(0.25, 25); log_yticks(ax[0], [0.5, 1, 2, 5, 10, 20])
-ordered_legend(fig, ax[0], y=1.27)
+ordered_legend(fig, ax[0], y=1.19)
 fig.tight_layout(w_pad=0.8); fig.savefig(FIG+'fig_sensitivity.pdf'); 
 
 # ---------------- Fig. 5: V trade-off and action mix ----------------
 V = json.load(open(f'{R}/V.json')); Vs = sorted(V, key=float); xv = [float(v) for v in Vs]
 mx = json.load(open(f'{R}/mix.json'))
-fig, ax = plt.subplots(1, 2, figsize=(COL_W, 1.4))
+fig, ax = plt.subplots(1, 2, figsize=(COL_W, 1.7))
 # (a) AoII versus V; the top axis gives the energy spent at selected V, the shade marks V within 5% of the budget
 en = {float(v): 1e3*V[v]['energy'][0] for v in Vs}
 ax[0].axvspan(5e-4, 0.0175, color=OI['grey'], alpha=0.15, lw=0)
@@ -94,7 +94,7 @@ ax[1].bar(ctr+bw/2, 100*raw, width=bw, color=OI['orange'], label='raw upload')
 ax[1].set(xlabel='distance to GS (km)', ylabel='share of slots (%)', xlim=(0.15, 2.85)); ax[1].set_xticks([0.5, 1, 1.5, 2, 2.5])
 ax[1].legend(loc='upper right', fontsize=6.2, handlelength=1.0, ncol=2, columnspacing=0.8, borderaxespad=0.2); ax[1].set_ylim(0, 10)
 top.set_xlabel('energy spent (mJ/slot)', fontsize=6.5, labelpad=2)
-fig.tight_layout(w_pad=1.0, rect=(0, 0, 1, 0.94))
+fig.tight_layout(w_pad=1.0, rect=(0, 0, 1, 0.95))
 for a_, tt, nt in zip(ax, ['(a)', '(b)'], [r'weight $V$, $\bar E=0.5$ mJ/slot', r'actions, $\bar E=2$ mJ/slot']):
     bb = a_.get_position()
     fig.text((bb.x0+bb.x1)/2, 0.99, tt + ' ' + nt, fontsize=7, va='top', ha='center')
