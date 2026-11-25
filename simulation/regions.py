@@ -29,11 +29,13 @@ for j, d in enumerate([0, 1]):
             R[i, jj] = int(np.argmax(u))
     ax[j].imshow(R, origin='lower', aspect='auto', cmap=ListedColormap(['#ececec', OI['blue'], OI['orange']]), vmin=0, vmax=2,
                  extent=[As[0], As[-1], cs[0], cs[-1]], interpolation='nearest')
-    ax[j].set_title('(a)' if d == 0 else '(b)', loc='left', fontsize=8, fontweight='bold', pad=3); ax[j].set_title('label agrees with GS' if d == 0 else 'label disagrees with GS', loc='right', fontsize=7, pad=3); ax[j].grid(False)
-    ax[j].set_xlabel('slots since last delivery')
+    ax[j].set_title(('(a) label agrees with GS' if d == 0 else '(b) label disagrees with GS'), loc='center', fontsize=7.5, pad=3)
+    ax[j].grid(False); ax[j].set_xticks([0, 10, 20, 30]); ax[j].set_yticks([0.5, 0.6, 0.7, 0.8, 0.9, 1.0]); ax[j].set_ylim(0.5, 1.0)
 ax[0].set_ylabel('on-board confidence $c$')
 fig.legend(handles=[mp.Patch(facecolor='#ececec', edgecolor='#888888', linewidth=0.5, label='silent'), mp.Patch(color=OI['blue'], label='label'), mp.Patch(color=OI['orange'], label='raw upload')],
-           loc='upper center', ncol=3, fontsize=7, frameon=False, bbox_to_anchor=(0.55, 1.0))
-fig.subplots_adjust(left=0.14, right=0.98, bottom=0.22, top=0.78, wspace=0.08)
+           loc='upper center', ncol=3, fontsize=7, frameon=False, handlelength=1.2, columnspacing=1.5, bbox_to_anchor=(0.56, 1.02))
+L, Rr = 0.14, 0.98
+fig.text((L+Rr)/2, 0.015, 'slots since last delivery', ha='center', va='bottom', fontsize=plt.rcParams['axes.labelsize'])
+fig.subplots_adjust(left=L, right=Rr, bottom=0.22, top=0.76, wspace=0.14)
 fig.savefig((sys.argv[2] if len(sys.argv) > 2 else 'figures') + '/regions.pdf')
 print('q1 q2 E1 E2', q1, q2, E1, E2)
