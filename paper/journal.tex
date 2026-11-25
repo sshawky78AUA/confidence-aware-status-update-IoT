@@ -626,7 +626,7 @@ Energy budget $\bar E$ & $0.25$ to $10$\,mJ/slot\\
 \caption{Trace-driven results at two energy budgets (mean $\pm$ 95\% confidence half-width over 20 held-out runs: 5-fold cross-validation over chips, 4 runs per fold). $\Delta$: change in average AoII obtained by CA-DPP relative to the policy in that row (negative means CA-DPP is lower), with paired 95\% confidence interval, paired $t$-test $p$-value, and the number of folds (out of 5) in which CA-DPP has the lower mean.}
 \label{tab:results}
 \centering\footnotesize\setlength{\tabcolsep}{3.2pt}
-\begin{tabular}{@{}lcccccccc@{}}
+\begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}cccccccc@{}}
 \toprule
  & \multicolumn{4}{c}{$\bar E=0.25$\,mJ/slot} & \multicolumn{4}{c}{$\bar E=2$\,mJ/slot}\\
 \cmidrule(lr){2-5}\cmidrule(l){6-9}
@@ -643,7 +643,7 @@ CA-DPP, label only & $0.686\pm0.204$ & $+6.7\pm13.8$ & $0.487$ & 1/5 & $0.428\pm
 \midrule
 Genie (knows $X$) & \multicolumn{8}{l}{AoII $0.171\pm0.011$, $\Prob$(GS wrong) $0.070$, energy $0.96$\,mJ/slot when unconstrained} \\
 \bottomrule
-\end{tabular}
+\end{tabular*}
 \end{table*}
 
 \subsection{Baselines and Ablations}
