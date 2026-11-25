@@ -38,6 +38,6 @@ New outputs go to `results_new/` and `figures_new/` (change with `RES=... FIG=..
 
 `results/` holds the JSON files behind the figures and table in the papers. Running `plots.py results`, `table.py results`, `regions.py 0.25`, `fig_inference.py` and `fig_path.py` on them reproduces the paper figures pixel for pixel and `table_results.tex` exactly.
 
-## Archive
+## Earlier versions
 
-`archive/` keeps earlier versions for the record: `sim2.py`, `experiments2.py`, `experiments3.py` (single train/test split, superseded by cross-validation), `plots2.py`, `plots3.py`, `results_v2/`, and `results_beta/` (a discounted look-ahead variant of CA-DPP that did not help and was dropped). They are not needed to reproduce the papers.
+Earlier versions of the simulator (single train/test split) and a discounted look-ahead variant of CA-DPP that did not help are not needed to reproduce the papers. They are in the git history (commit `7ad075f`, folder `simulation/archive/`).
