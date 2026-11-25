@@ -95,6 +95,8 @@ The AoI treats every update as correct, so it cannot tell a fresh wrong estimate
 
 Two recent works add energy constraints. Zakeri et al.~\cite{zakeri2023aoiieh} study an energy-harvesting sensor that decides when to sample and when to transmit. Since the sensor does not see the source between samples, they formulate a POMDP whose belief is about the source state, and they derive threshold policies on the AoII. Ngo et al.~\cite{ngo2025eh} study the age and the correctness of updates from many energy-harvesting devices that share a random-access channel. In both works, a sample reveals the source state without error. Our UAV, in contrast, never observes the state. Its only observation is a classifier output that may be wrong, and the probability that it is wrong changes from frame to frame.
 
+The belief we use is closest to that of Cosandal et al.~\cite{cosandal2024joint}, who keep a joint belief over the age and the source state at a monitor that pulls samples with a delay, and use it for estimation and for sampling decisions. There, too, a delivered sample is exact, and the uncertainty comes from the delay. In our problem a fresh observation arrives in every slot, but it may be wrong, so the belief must weigh each frame by how much its confidence can be trusted.
+
 \subsection{Freshness of Inferred Information}
 Several works consider status updates whose content is the output of a classifier. Buratto et al.~\cite{buratto2023misclass} add a penalty for misclassification to an AoI scheduling problem. The classifier errs with a fixed probability, and the schedule is computed offline. Gan et al.~\cite{gan2025taoi} define a task-oriented AoI for cameras that pre-identify each frame on the device and send the frames that appear to contain the target to a server, which re-identifies them with a larger model. The error rates of both classifiers are fixed, so the device does not use the confidence of individual frames. Pehlivano\u{g}lu, Li and Uysal~\cite{pehlivanoglu2026orbit} let a satellite choose among idling, running inference on board, sending a cached result and offloading raw data to the ground. Their action set is the closest to ours. They prove that a threshold policy minimizes the age of inference, but each action succeeds with a fixed probability, errors do not depend on the sample, and energy is not constrained. Basnayaka et al.~\cite{basnayaka2025aomi} define the age of misclassified information for event detection from low Earth orbit, again with a constant classification accuracy.
 
@@ -378,7 +380,7 @@ Exact Bayes' rule would multiply the mass at $\delta>0$ by $\Lambda_t$ relative 
 \begin{equation}\label{eq:post}
 \pi_t(\delta)=\frac{\pi^-_t(\delta)}{1-\mu^-_t+\mu^-_t\Lambda_t^{\nu}}\times\begin{cases}1, & \delta=0,\\ \Lambda_t^{\nu}, & \delta>0.\end{cases}
 \end{equation}
-The exponent counts each frame as a fraction $\nu$ of an independent observation, and $\nu=1$ recovers Bayes' rule. A rough guide is the inverse of the mean length of an error run, and in the evaluation we select $\nu$ on tuning data together with the other parameters of the controller. We also include, as an option, the symmetric update that ignores the prior and uses $\varpi_0=\varpi_1$ with $\nu=1$, in which the confidence itself is the likelihood.
+The exponent counts each frame as a fraction $\nu$ of an independent observation, and $\nu=1$ recovers Bayes' rule. A rough guide is the inverse of the mean length of an error run. A guide with a firmer basis comes from the correlation of the errors. Suppose the error indicators of consecutive frames form a stationary sequence whose correlation at lag $k$ is $\kappa^k$. The sum of $n$ such indicators then has about $(1+\kappa)/(1-\kappa)$ times the variance of a sum of $n$ independent ones, so $n$ frames carry roughly the evidence of $n(1-\kappa)/(1+\kappa)$ independent frames, which suggests $\nu=(1-\kappa)/(1+\kappa)$. In the evaluation we select $\nu$ on tuning data together with the other parameters of the controller, and Section~\ref{res:robust} reports the results with the correlation rule instead. We also include, as an option, the symmetric update that ignores the prior and uses $\varpi_0=\varpi_1$ with $\nu=1$, in which the confidence itself is the likelihood.
 
 Step 1 multiplies the odds that the GS is wrong by $\Lambda_t^{\nu}$. It moves mass between ``the GS is right'' and ``the GS is wrong'' but does not change the shape of the belief within $\delta>0$.
 
@@ -607,10 +609,10 @@ The on-board model must fit a small processor. It is a logistic regression on th
 
 For weaker on-board models, we add Gaussian noise of $2$, $4$, $6$ and $8$ times each band's standard deviation to the inputs, then retrain and recalibrate. On the $174$ validation and test chips ($33{,}423$ slots, $20.5\%$ flooded), the base model and the four noisy variants are correct on $91.8\%$, $89.4\%$, $86.7\%$, $83.9\%$ and $81.8\%$ of the slots, and the ground model on $97.6\%$. Noise makes the errors lopsided: the noisiest variant labels $7\%$ of the test slots as flooded, against $21\%$ in truth, so $88\%$ of its errors are missed floods.
 
-On the test chips, the expected calibration error (ECE, ten equal-width bins) is $1.4\%$ for the base on-board model, $2.2\%$ for the noisiest variant, which therefore still reports honestly when it is unsure (Fig.~\ref{fig:inference}(a)), and $0.2\%$ for the ground model. The on-board errors come in runs: over the validation and test chips the base model is wrong in $8.2\%$ of the slots but in $56\%$ of the slots that follow a wrong label, and a run lasts $2.2$ slots on average. This suggests $\nu\approx0.45$ (Section~\ref{sec:update}); the tuning picks $\nu\in\{0.25,0.5\}$. The ground model is wrong on $20\%$ of the frames that the on-board model gets wrong and on $0.7\%$ of the others, and its error is about $8\%$ for $c<0.8$ and below $1\%$ for $c>0.95$.
+On the test chips, the expected calibration error (ECE, ten equal-width bins) is $1.4\%$ for the base on-board model, $2.2\%$ for the noisiest variant, which therefore still reports honestly when it is unsure (Fig.~\ref{fig:inference}(a)), and $0.2\%$ for the ground model. The on-board errors come in runs: over the validation and test chips the base model is wrong in $8.2\%$ of the slots but in $56\%$ of the slots that follow a wrong label, and a run lasts $2.2$ slots on average. This suggests $\nu\approx0.45$ by the run length; the lag-one correlation of the error indicator is $\kappa\approx0.5$, so the correlation rule of Section~\ref{sec:update} gives $\nu$ between $0.31$ and $0.35$ on the tuning folds. The tuning picks $\nu\in\{0.25,0.5\}$. The ground model is wrong on $20\%$ of the frames that the on-board model gets wrong and on $0.7\%$ of the others, and its error is about $8\%$ for $c<0.8$ and below $1\%$ for $c>0.95$.
 
 \subsection{Scenario}
-Table~\ref{tab:params} lists the scenario parameters. Over one orbit of $200$\,s, the distance to the GS ranges from $0.2$ to $2.8$\,km. The link parameters give a label energy of about $20$\,mJ everywhere and a raw upload that costs $58$ to $420$\,mJ and succeeds with probability $0.99$ to $0.25$, depending on the distance. Averaging over the fading instead of using~\eqref{eq:energy} gives $20$ to $22$\,mJ for a label and $64$ to $395$\,mJ for a raw frame, so~\eqref{eq:energy} is within $-30\%$ to $+12\%$ of the exact cost of a raw frame. Every packet carries a $32$-bit CRC. Blockage has $\rho_{\rm b}=0.02$ and $\rho_{\rm u}=0.1$, so $17\%$ of the slots are blocked, for $10$ slots on average. We consider budgets $\bar E$ from $0.25$ to $10$\,mJ per slot. At the lowest budget the UAV can afford a label in about one slot in $80$, and at the highest it can afford a raw upload in most slots near the GS. We truncate the belief at $\Delta_{\max}=300$, i.e., $1.2$\,kB in single precision and a few hundred multiply-adds per slot. The value only needs to exceed the AoII values that occur: the longest AoII under CA-DPP in our runs is below $40$ slots, and runs with $\Delta_{\max}$ from $50$ to $1000$ give identical decisions.
+Table~\ref{tab:params} lists the scenario parameters. Over one orbit of $200$\,s, the distance to the GS ranges from $0.2$ to $2.8$\,km. The link parameters give a label energy of about $20$\,mJ everywhere and a raw upload that costs $58$ to $420$\,mJ and succeeds with probability $0.99$ to $0.25$, depending on the distance. Averaging over the fading instead of using~\eqref{eq:energy} gives $20$ to $22$\,mJ for a label and $64$ to $395$\,mJ for a raw frame, so~\eqref{eq:energy} is within $-30\%$ to $+12\%$ of the exact cost of a raw frame. Every packet carries a $32$-bit CRC. Blockage has $\rho_{\rm b}=0.02$ and $\rho_{\rm u}=0.1$, so $17\%$ of the slots are blocked, for $10$ slots on average. We consider budgets $\bar E$ from $0.25$ to $10$\,mJ per slot. At the lowest budget the UAV can afford a label in about one slot in $80$, and at the highest it can afford a raw upload in most slots near the GS. We truncate the belief at $\Delta_{\max}=300$, i.e., $1.2$\,kB in single precision. A slot then takes about two thousand arithmetic operations, one pass over the belief for each of the correction, the two gains and the prediction; on a microcontroller with a floating-point unit at $100$\,MHz this is on the order of tens of microseconds (our estimate at one operation per cycle), against a slot of $0.5$\,s. The value only needs to exceed the AoII values that occur: the longest AoII under CA-DPP in our runs is below $40$ slots, and runs with $\Delta_{\max}$ from $50$ to $1000$ give identical decisions.
 
 \begin{table}[t]
 \caption{Scenario parameters}\label{tab:params}
@@ -724,6 +726,78 @@ As the share of blocked slots grows from $0$ to $50\%$ (Fig.~\ref{fig:sens}(b)),
 Fig.~\ref{fig:Vmix}(a) shows the trade-off governed by $V$ at $0.5$\,mJ/slot. Raising $V$ from $10^{-3}$ to $3$ lowers the AoII from $0.79$ to $0.41$. A larger $V$, however, lets the debt grow before it raises the price: over about $27{,}000$ slots the energy spent rises from $0.50$ to $1.51$\,mJ/slot. Values of $V$ up to $10^{-2}$ stay within $4\%$ of the budget. Theorem~\ref{thm:budget} holds for every $V$, but the transient excess grows with $V$, so $V$ must match the mission length.
 
 Fig.~\ref{fig:Vmix}(b) shows how CA-DPP exploits the trajectory. Within $850$\,m of the GS, where uploads are cheap and reliable, it uploads the frame in $5.9\%$ of the unblocked slots and sends labels in $2.0\%$. Beyond $2.15$\,km it uploads in only $0.1\%$ and sends labels in $3.8\%$. The UAV asks the ground when asking is cheap, although the distance enters~\eqref{eq:rule} only through $q_a(g)$ and $E_a(g)$.
+\subsection{Distance to the Optimal Policy}\label{res:opt}
+Remark~\ref{rem:opt} leaves the gap between CA-DPP and the optimal policy of (P) open, and computing that optimum is out of reach, since the belief has $\Delta_{\max}+1$ entries. A lower bound on it can be computed, however. A controller that also observes $X(t)$, and therefore the AoII and whether the on-board label is right, can imitate any policy of (P), so the optimal AoII of this full-information controller under the same budget is a lower bound on the optimum of (P). Its problem is a constrained Markov decision process over $X(t)$, the AoII, the orbit position and the blockage state. We solve its Lagrangian relaxation by value iteration for a range of energy prices and obtain the bound at each energy level by weak duality. To compare against the bound without confounding factors, we use a synthetic model that satisfies Assumption~\ref{as:inf}: $X(t)$ follows the Markov chain fitted to the data, and in each slot the outputs of the two classifiers are drawn jointly from data slots with the same state, so the errors are independent over time. CA-DPP then uses $\nu=1$. CA-DPP and the AoII-threshold policy are tuned as in Section~\ref{sec:results}-E and run six times for $10^5$ slots.
+
+\begin{table}[t]
+\caption{Synthetic model with independent errors: average AoII of CA-DPP and of the AoII-threshold policy (mean of six runs), and the lower bound at the energy each policy spends. The gap is the excess over the bound; the true gap to the optimal policy is smaller.}\label{tab:optgap}
+\centering\footnotesize
+\begin{tabular}{@{}ccccccc@{}}
+\toprule
+ & \multicolumn{3}{c}{CA-DPP} & \multicolumn{3}{c}{AoII threshold}\\
+\cmidrule(lr){2-4}\cmidrule(l){5-7}
+$\bar E$ (mJ/slot) & AoII & bound & gap & AoII & bound & gap\\
+\midrule
+$0.25$ & $0.878$ & $0.701$ & $+25\%$ & $1.208$ & $0.706$ & $+71\%$\\
+$0.5$ & $0.624$ & $0.497$ & $+25\%$ & $0.941$ & $0.686$ & $+37\%$\\
+$1$ & $0.389$ & $0.320$ & $+22\%$ & $0.464$ & $0.335$ & $+38\%$\\
+$2$ & $0.348$ & $0.306$ & $+14\%$ & $0.464$ & $0.335$ & $+38\%$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:optgap} shows that CA-DPP is within $14\%$ to $25\%$ of the bound at every budget, and the gap shrinks as energy grows. The bound credits the controller with knowing $X(t)$, which no policy of (P) can match, so CA-DPP is at least this close to the optimal policy. The AoII-threshold policy is $37\%$ to $71\%$ above the bound; at the larger budgets it spends less than allowed, because even with $k=1$ it sends only labels that disagree with the GS. In this model CA-DPP also stays ahead of the threshold policy at $2$\,mJ/slot, by $25\%$ in AoII, while on the real traces the two tie at this budget (Section~\ref{res:budget}). The difference between the two settings is the correlation of the errors, which the next subsection examines.
+
+\subsection{Correlated Errors}\label{res:corr}
+On the real traces the on-board errors come in runs (Section~\ref{sec:results}-B). To isolate their effect, we extend the synthetic model with an error indicator that follows a two-state Markov chain with the measured error rate $8.2\%$ and persistence $\Prob\{\text{wrong at }t+1\mid\text{wrong at }t\}=\varrho$. Given the state and the indicator, the confidence and the ground output are drawn from data slots with the same state and the same correctness, so the classifier stays calibrated. We vary $\varrho$ from $0.082$ (independent errors) to $0.8$; the real traces have $\varrho=0.56$. CA-DPP runs with the rule of Section~\ref{sec:update} and, for comparison, with $\nu=1$.
+
+\begin{table}[t]
+\caption{Synthetic model with correlated errors: AoII reduction of CA-DPP relative to the AoII-threshold policy (mean of six paired runs; negative favors CA-DPP), with $\nu$ from the rule and with $\nu=1$.}\label{tab:corr}
+\centering\footnotesize
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+ & & \multicolumn{2}{c}{$\bar E=0.5$\,mJ/slot} & \multicolumn{2}{c}{$\bar E=2$\,mJ/slot}\\
+\cmidrule(lr){3-4}\cmidrule(l){5-6}
+$\varrho$ & rule $\nu$ & rule $\nu$ & $\nu=1$ & rule $\nu$ & $\nu=1$\\
+\midrule
+$0.082$ & $1.00$ & $-23\%$ & $-23\%$ & $-23\%$ & $-23\%$\\
+$0.3$ & $0.62$ & $-21\%$ & $-21\%$ & $-7\%$ & $-6\%$\\
+$0.56$ & $0.32$ & $-20\%$ & $-17\%$ & $-4\%$ & $-1\%$\\
+$0.8$ & $0.12$ & $-34\%$ & $-13\%$ & $-10\%$ & $-1\%$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:corr} shows two effects. With independent errors, CA-DPP lowers the AoII of the threshold policy by about $23\%$ at both budgets. As the errors become more persistent, the advantage at $2$\,mJ/slot shrinks, because a run of wrong labels looks like strong evidence to a belief that counts each frame separately; with $\nu=1$ it disappears. The rule for $\nu$ recovers part of it, and at $0.5$\,mJ/slot it keeps CA-DPP ahead at every persistence. The tie on the real traces at large budgets is therefore a consequence of correlated errors rather than of the structure of CA-DPP, and a belief that models the error process (Section~\ref{sec:discussion}) is the natural next step.
+
+\subsection{Robustness Checks}\label{res:robust}
+\emph{Choice of $\nu$.} The main results select $\nu$ on the tuning folds. Table~\ref{tab:nu} repeats the trace-driven evaluation with $\nu$ set instead by the correlation rule of Section~\ref{sec:update}, which gives $\nu$ between $0.31$ and $0.35$ for the base model and between $0.30$ and $0.42$ for the noisy variants; everything else, including the folds and the random numbers, is unchanged. With the rule, CA-DPP lowers the AoII of the threshold policy by $16\%$ (paired relative change) at $0.5$\,mJ/slot (paired $p=0.003$) and by $11\%$ and $15\%$ at $5$ and $10$\,mJ/slot ($p=0.015$ and $p=0.008$ on the five fold means), where the tuned version ties. At $0.25$\,mJ/slot, however, its AoII rises from $0.65$ to $0.87$ and it only ties with the threshold policy, and with the weakest classifier its AoII rises from $0.64$ to $0.78$, still $41\%$ below the threshold policy. The best discount therefore depends on the budget, and choosing it per budget on tuning data, as in the main results, is the safer default. Repeating the rule run with ten folds gives the same picture: a tie at $0.25$\,mJ/slot and reductions of $7\%$ at $0.5$\,mJ/slot and of $31\%$ and $40\%$ with the two weakest classifiers.
+
+\begin{table}[t]
+\caption{Average AoII of CA-DPP with $\nu$ selected on the tuning folds (main results) and with $\nu$ from the correlation rule, and of the AoII-threshold policy (mean of $20$ held-out runs, $5$-fold cross-validation). The last two rows use the two weakest on-board classifiers at $\bar E=0.5$\,mJ/slot.}\label{tab:nu}
+\centering\footnotesize
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Setting & CA-DPP, tuned $\nu$ & CA-DPP, rule $\nu$ & AoII threshold\\
+\midrule
+$\bar E=0.25$\,mJ/slot & $0.645$ & $0.867$ & $0.925$\\
+$\bar E=0.5$\,mJ/slot & $0.526$ & $0.479$ & $0.564$\\
+$\bar E=1$\,mJ/slot & $0.418$ & $0.356$ & $0.363$\\
+$\bar E=2$\,mJ/slot & $0.390$ & $0.337$ & $0.352$\\
+$\bar E=5$\,mJ/slot & $0.360$ & $0.309$ & $0.352$\\
+$\bar E=10$\,mJ/slot & $0.341$ & $0.291$ & $0.352$\\
+accuracy $83.9\%$ & $0.581$ & $0.570$ & $0.809$\\
+accuracy $81.8\%$ & $0.643$ & $0.775$ & $1.312$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The selection itself is noisy. With $\nu$ fixed and only $V$ tuned, CA-DPP reaches an AoII of $0.41$, $0.44$, $0.47$, $0.55$ and $0.72$ at $0.5$\,mJ/slot for $\nu=0.14$, $0.25$, $0.32$, $0.5$ and $1$, and $0.34$, $0.34$, $0.34$, $0.36$ and $0.41$ at $2$\,mJ/slot. Exact Bayes' rule ($\nu=1$) is clearly the worst, which confirms that the tempering matters, and several fixed values do better than the tuned version in Table~\ref{tab:results}, because the selection on four folds sometimes picks a poor value. The main results are therefore conservative.
+
+\emph{Exact energy.} The energy model~\eqref{eq:energy} replaces the fading average by its value at the mean SNR. We repeated the budget and accuracy sweeps with the exact average over the fading, computed by numerical integration, and retuned every policy. The AoII of CA-DPP changes by at most $4.2\%$ across budgets and $6.7\%$ across classifiers, its relative change against the threshold policy moves by at most $6$ percentage points, and no significant comparison changes sign.
+
+\emph{Statistics.} Runs on the same fold share chips, so the $20$ held-out runs are not fully independent. Tested on the five fold means instead, the reductions with the two weakest classifiers remain significant ($p=0.035$ and $p=0.014$, all five folds), whereas the $0.25$\,mJ/slot reduction, seen in four of five folds, has $p=0.17$. The large gains over the pre-identification and age-threshold policies hold in every fold up to $5$\,mJ/slot and in four of five folds at $10$\,mJ/slot.
+
 %% =====================================================================
 \section{Discussion}\label{sec:discussion}
 %% =====================================================================
@@ -737,13 +811,13 @@ Fig.~\ref{fig:Vmix}(b) shows how CA-DPP exploits the trajectory. Within $850$\,m
 Two design lessons follow. First, never send a label that agrees with the receiver (Proposition~\ref{prop:confirm}); this rule alone gives the $52\%$ to $75\%$ gap to the pre-identification and age-threshold policies. Second, calibrate the classifier on board: isotonic calibration is a lookup table, and the prior correction~\eqref{eq:lik} matters because monitored events are rare.
 
 \subsection{Correlated Errors}
-The main weakness of CA-DPP at large budgets is Assumption~\ref{as:inf}(ii): the on-board errors come in runs (Section~\ref{sec:results}-B). The tempered update~\eqref{eq:post} discounts every frame equally and cannot tell new evidence from a repeated error. A hidden Markov model of the classifier state could, at twice the belief size.
+The main weakness of CA-DPP at large budgets is Assumption~\ref{as:inf}(ii): the on-board errors come in runs (Section~\ref{sec:results}-B). The tempered update~\eqref{eq:post} discounts every frame equally and cannot tell new evidence from a repeated error. Section~\ref{res:corr} shows that this costs CA-DPP most of its advantage over the threshold policy at large budgets, and that the rule for $\nu$ recovers part of it. A hidden Markov model of the classifier state could recover more, at twice the belief size.
 
 \subsection{Other IoT Settings}
 Nothing in the model is specific to UAVs or floods. The link and energy models fit any device whose channel varies predictably, such as a low-Earth-orbit satellite that sees a ground station only during passes. A non-binary scene needs a belief over the AoII and the current class, but the gains keep their structure: a right update removes AoII and a wrong one creates it.
 
 \subsection{Limitations}
-Five limitations remain. First, the policy is myopic, and its gap to the optimal policy of (P) is not bounded. Second, Proposition~\ref{prop:threshold} holds for the per-slot rule~\eqref{eq:rule} within each confidence bin; whether the optimal policy of (P) shares it is open. Third, Sentinel-2 imagery stands in for UAV frames (FLAME~\cite{shamsoshoara2021flame} and AIDER~\cite{kyrkou2020aider} are UAV alternatives). Fourth, the energy model is analytic. Fifth, the imagery is not tied to the UAV position, so route planning is left out.
+Five limitations remain. First, the policy is myopic; its gap to the optimal policy of (P) is bounded only numerically, in a model with independent errors (Section~\ref{res:opt}). Second, Proposition~\ref{prop:threshold} holds for the per-slot rule~\eqref{eq:rule} within each confidence bin; whether the optimal policy of (P) shares it is open. Third, Sentinel-2 imagery stands in for UAV frames (FLAME~\cite{shamsoshoara2021flame} and AIDER~\cite{kyrkou2020aider} are UAV alternatives). Fourth, the energy model is analytic; replacing the mean-SNR approximation~\eqref{eq:energy} by the exact fading average changes none of the conclusions (Section~\ref{res:robust}), but measured energy is still missing. Fifth, the imagery is not tied to the UAV position, so route planning is left out.
 
 %% =====================================================================
 \section{Conclusion}\label{sec:concl}

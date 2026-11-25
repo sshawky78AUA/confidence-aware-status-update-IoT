@@ -18,7 +18,7 @@ def split(f, part):
     return ('cv', tu, tu, 1) if part == 'tune' else ('cv', ev, tu, 4)
 def VG(B):                                # V window per budget (the virtual queue scales with 1/budget)
     return [0.001, 0.003, 0.01, 0.03] if B <= 0.0005 else ([0.03, 0.1, 0.3, 1] if B <= 0.002 else [0.3, 1, 3, 10])
-BEL = ['rule']                            # belief: prior-corrected, discount nu = (1-rho)/(1+rho) from the tuning folds' error correlation
+BEL = ['rule'] if os.environ.get('NU_RULE') else [0, 0.25, 0.5]   # belief: 0 symmetric; else prior-corrected with discount nu ('rule': nu=(1-kappa)/(1+kappa) from tuning folds, robustness run)
 BETA = [0]                                # look-ahead discount; 0.5 and 0.8 were tried and did not help (dropped; see git history)
 GRIDS = {'gan': [None], 'oracle': [None],
          'zakeri': [1, 2, 3, 5], 'pehl': [(A, q) for A in (1, 3, 10) for q in (0.5, 0.9, 1.1)],

@@ -15,4 +15,10 @@ python3 table.py "$RES" "$FIG/table_results.tex"                  #         resu
 python3 regions.py 0.25 "$FIG"                                    #         decision-regions figure
 python3 fig_inference.py traces_sen1floods11.npz "$FIG/fig_inference.pdf"   # journal only
 python3 fig_path.py "$FIG/fig_path.pdf"                                      # journal only
+# robustness checks (Computer Networks version, Section "Robustness Checks" and the two synthetic studies)
+python3 experiments.py "$RES" budget_exact,acc_exact                          # exact fading-averaged energy
+NU_RULE=1 python3 experiments.py "$RES/nu_rule"                              # nu from the error-correlation rule
+NU_RULE=1 KFOLD=10 python3 experiments.py "$RES/nu_rule" cv10                 # same, 10 folds
+python3 robust_corr.py "$RES" synthetic,nu_cv                                 # correlated errors; fixed-nu sensitivity
+python3 optgap.py "$RES"                                                      # full-information lower bound
 echo "Results in $RES, figures and table in $FIG"

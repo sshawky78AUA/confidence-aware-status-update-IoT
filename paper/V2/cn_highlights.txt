@@ -1,0 +1,7 @@
+Highlights
+
+- A UAV decides when to stay silent, send its on-board label or upload the raw frame
+- A belief over the receiver's age of incorrect information is a sufficient statistic
+- Agreeing labels are worthless, and the decision follows confidence thresholds
+- The drift-plus-penalty policy meets the energy budget on every sample path
+- Cross-validated flood traces: 52-75% lower AoII than three adapted designs
