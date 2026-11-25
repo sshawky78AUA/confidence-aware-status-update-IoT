@@ -1,8 +1,9 @@
-"""Trace-driven simulator: real Sen1Floods11 inference traces + UAV air-to-ground link.
+"""Usage: imported by experiments.py, regions.py and fig_path.py (pass log=True to run() for a per-slot log).
+Trace-driven simulator: real Sen1Floods11 inference traces + UAV air-to-ground link.
 Policies: CA-DPP (proposed) and its ablations, and baselines adapted from
 Gan et al. 2025, Pehlivanoglu et al. 2026, Basnayaka et al. 2025, Zakeri et al. 2023."""
 import numpy as np, os
-HERE = '/mnt/project-files/direction1-paper/sim'
+HERE = os.path.dirname(os.path.abspath(__file__))
 TR = dict(np.load(os.path.join(HERE, 'traces_sen1floods11.npz')))
 # pooled validation + test slots for chip-level cross-validation (validation chip ids offset by 1000)
 TR['chip_all'] = np.concatenate([TR['chip_va'] + 1000, TR['chip']]); TR['X_all'] = np.concatenate([TR['X_va'], TR['X']])
@@ -66,7 +67,7 @@ def make_trace(seed, reps=4, split='te'):
     idx = np.concatenate([np.where(ch == c)[0] for _ in range(reps) for c in rng.permutation(np.unique(ch))])
     return idx, rng
 
-def run(policy, budget, par=None, seed=1, P=P, mixlog=False, split='te'):
+def run(policy, budget, par=None, seed=1, P=P, mixlog=False, split='te', log=False):
     if policy.startswith('cadpp') and isinstance(par, (list, tuple)):   # (V, gamma)
         P = dict(P)
         if len(par) > 2: P['beta'] = par[2]
@@ -169,9 +170,10 @@ def run(policy, budget, par=None, seed=1, P=P, mixlog=False, split='te'):
         if t+1 < T:
             Xn = X_tr[t+1]
             D = (D+1) if Xn != Xh else 0
-        for kk, vv in (('X',X),('Xh',Xh),('D',D),('mu',mu_t),('a',a),('ok',ok),('Z',Z),('c',c),('lab',lab),('blocked',blocked[t]),('dist',LT['dist'][k])): LOG[kk].append(vv)
+        if log:
+          for kk, vv in (('X',X),('Xh',Xh),('D',D),('mu',mu_t),('a',a),('ok',ok),('Z',Z),('c',c),('lab',lab),('blocked',blocked[t]),('dist',LT['dist'][k])): LOG[kk].append(vv)
         Dlog[t] = D; sumD += D; wrong += (X_tr[min(t+1, T-1)] != Xh)
         if lab == Xh: run_len = 0        # the delivered label now matches
     return dict(policy=policy, par=par, budget=budget, aoii=sumD/T, wrong=wrong/T, energy=sumE/T,
                 p95=float(np.percentile(Dlog, 95)), p99=float(np.percentile(Dlog, 99)),
-                frac=(cnt/T).tolist(), log={k: np.array(v) for k, v in LOG.items()}, Zend=Z, mix=mix.tolist() if mixlog else None, T=T)
+                frac=(cnt/T).tolist(), log={k: np.array(v) for k, v in LOG.items()} if log else None, Zend=Z, mix=mix.tolist() if mixlog else None, T=T)

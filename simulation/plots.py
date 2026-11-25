@@ -1,8 +1,8 @@
-"""Result figures from results4/*.json (run after experiments4.py). Revised layout: ordered legends,
+"""Result figures from results/*.json (run after experiments.py). Usage: python3 plots.py [RESULTS_DIR] [FIG_DIR]. Revised layout: ordered legends,
 budget ticks in mJ/slot, panel tags with the operating point."""
 import json, sys, numpy as np
 from figstyle import plt, POL, OI, COL_W, PAGE_W, errline
-R = sys.argv[1] if len(sys.argv) > 1 else 'results3'; FIG = '../figures/'
+R = sys.argv[1] if len(sys.argv) > 1 else 'results'; FIG = (sys.argv[2] if len(sys.argv) > 2 else 'figures') + '/'
 for k, v in {'zakeri': 'AoII threshold (Zakeri)', 'gan': 'Pre-identification (Gan)',
              'pehl': 'Age threshold (Pehlivanoğlu)', 'basn': 'Always offload (Basnayaka)'}.items():
     POL[k] = (v,) + POL[k][1:]

@@ -1,7 +1,6 @@
 """Fig: (a) reliability of on-board models, (b) error rates vs on-board confidence, (c) sample path.
 Usage: python fig_inference.py <traces.npz> <out.pdf>"""
 import sys, numpy as np
-sys.path.insert(0, '/mnt/project-files/direction1-paper/sim')
 from figstyle import plt, OI, PAGE_W
 d = np.load(sys.argv[1])
 X = d['X'].astype(int)

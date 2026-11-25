@@ -1,11 +1,10 @@
 """Sample path of CA-DPP at 0.5 mJ/slot: state, GS estimate, actions, AoII and belief mu_t.
 Usage: python fig_path.py <out.pdf>"""
 import sys, numpy as np
-sys.path.insert(0, '/mnt/project-files/direction1-paper/sim'); sys.path.insert(0, '/mnt/project-files/direction1-journal/sim')
 from figstyle import plt, OI, COL_W
-import sim_log as S
+import sim as S
 chips = np.unique(S.TR['chip_all'])
-r = S.run('cadpp', 0.5e-3, (0.01, 0.25, 0), seed=1, split=('cv', chips, chips, 1)); L = r['log']
+r = S.run('cadpp', 0.5e-3, (0.01, 0.25, 0), seed=1, split=('cv', chips, chips, 1), log=True); L = r['log']
 st = int(sys.argv[2]) if len(sys.argv) > 2 else 4990; w = slice(st, st+120); t = np.arange(120)
 fig, ax = plt.subplots(2, 1, figsize=(COL_W, 2.6), sharex=True, gridspec_kw={'height_ratios': [1, 1.2]})
 ax[0].fill_between(t, 0, L['X'][w], step='mid', color=OI['sky'], alpha=0.35, lw=0, label='flooded (true state)')

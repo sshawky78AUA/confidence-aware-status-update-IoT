@@ -1,11 +1,12 @@
-"""Fig. 2: decisions of rule (13) vs. slots since last delivery and confidence, real parameters."""
-import numpy as np, sim3 as sim2
+"""Fig. 2: decisions of rule (13) vs. slots since last delivery and confidence, real parameters.
+Usage: python3 regions.py [NU=0.25] [FIG_DIR]"""
+import numpy as np, sim as sim2
 from figstyle import plt, OI, COL_W
 from matplotlib.colors import ListedColormap
 import matplotlib.patches as mp
 MP = sim2.model_params(sim2.P); LT = sim2.link_tables(sim2.P)
 k = int(np.argmin(np.abs(LT['dist']-1200))); q1, q2, E1, E2 = LT['q1'][k], LT['q2'][k], LT['E1'][k], LT['E2'][k]
-import sys; NU = float(sys.argv[1]) if len(sys.argv) > 1 else 0.5; PI = MP['pi']
+import sys; NU = float(sys.argv[1]) if len(sys.argv) > 1 else 0.25; PI = MP['pi']
 p0, p1 = MP['p']; xh = 0; r, w = p0, p1; Dm = 300; lam_over_V = 2.0
 def prior(A):   # belief A slots after a delivery of a label with confidence 0.95, no observations since
     b = np.zeros(Dm+1); b[0] = 0.95; b[1] = 0.05
@@ -34,5 +35,5 @@ ax[0].set_ylabel('on-board confidence $c$')
 fig.legend(handles=[mp.Patch(facecolor='#ececec', edgecolor='#888888', linewidth=0.5, label='silent'), mp.Patch(color=OI['blue'], label='label'), mp.Patch(color=OI['orange'], label='raw upload')],
            loc='upper center', ncol=3, fontsize=7, frameon=False, bbox_to_anchor=(0.55, 1.0))
 fig.subplots_adjust(left=0.14, right=0.98, bottom=0.22, top=0.78, wspace=0.08)
-fig.savefig('../figures/regions.pdf')
+fig.savefig((sys.argv[2] if len(sys.argv) > 2 else 'figures') + '/regions.pdf')
 print('q1 q2 E1 E2', q1, q2, E1, E2)

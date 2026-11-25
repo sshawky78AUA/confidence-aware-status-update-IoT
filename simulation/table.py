@@ -1,6 +1,6 @@
-"""Table III from results4/budget.json: mean and 95% CI over 20 held-out runs (5-fold chip CV), paired comparison."""
+"""Table III from results/budget.json. Usage: python3 table.py [RESULTS_DIR] [OUT.tex]: mean and 95% CI over 20 held-out runs (5-fold chip CV), paired comparison."""
 import json, sys
-R = sys.argv[1] if len(sys.argv) > 1 else 'results3'
+R = sys.argv[1] if len(sys.argv) > 1 else 'results'
 b = json.load(open(f'{R}/budget.json'))
 NAMES = [('cadpp', 'CA-DPP (proposed)'), ('zakeri', 'AoII threshold~\\cite{zakeri2023aoiieh}'), ('gan', 'Pre-identification~\\cite{gan2025taoi}'),
          ('pehl', 'Age threshold~\\cite{pehlivanoglu2026orbit}'), ('basn', 'Always offload~\\cite{basnayaka2025aomi}'),
@@ -26,4 +26,4 @@ for k, n in NAMES:
 o = b['0.01']['oracle']
 L += ['\\midrule', f"Genie (knows $X$) & \\multicolumn{{8}}{{l}}{{AoII ${o['aoii']:.3f}\\pm{o['aoii_ci']:.3f}$, $\\Prob$(GS wrong) ${o['wrong']:.3f}$, energy ${1e3*o['energy']:.2f}$\\,mJ/slot when unconstrained}} \\\\",
       '\\bottomrule', '\\end{tabular}', '\\end{table*}']
-open('../table_results.tex', 'w').write('\n'.join(L) + '\n'); print('\n'.join(L))
+open(sys.argv[2] if len(sys.argv) > 2 else 'table_results.tex', 'w').write('\n'.join(L) + '\n'); print('\n'.join(L))

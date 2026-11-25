@@ -5,13 +5,13 @@ the baselines) and every estimated model quantity (ground error per confidence b
 precision) is chosen on the other 4 folds (2 runs of one pass each); the chosen value is then
 evaluated on the held-out fold over 4 runs of 4 passes (chip order, fading, blockage).
 This gives 20 held-out runs per policy. Runs share random numbers across policies, so paired
-statistics are used for the differences. Usage: python3 experiments4.py OUTDIR [what]"""
-import sim3, numpy as np, json, os, sys
+statistics are used for the differences. Usage: python3 experiments.py OUTDIR [what]"""
+import sim, numpy as np, json, os, sys
 from multiprocessing import Pool
 from scipy import stats
-OUT = sys.argv[1] if len(sys.argv) > 1 else 'results4'; os.makedirs(OUT, exist_ok=True)
+OUT = sys.argv[1] if len(sys.argv) > 1 else 'results'; os.makedirs(OUT, exist_ok=True)
 K = 5; TUNE_SEEDS = (101, 102); TEST_SEEDS = (1, 2, 3, 4)
-CH = np.random.default_rng(0).permutation(np.unique(sim3.TR['chip_all']))
+CH = np.random.default_rng(0).permutation(np.unique(sim.TR['chip_all']))
 FOLDS = [tuple(int(c) for c in CH[f::K]) for f in range(K)]
 def split(f, part):
     ev = FOLDS[f]; tu = tuple(c for g in range(K) if g != f for c in FOLDS[g])
@@ -19,7 +19,7 @@ def split(f, part):
 def VG(B):                                # V window per budget (the virtual queue scales with 1/budget)
     return [0.001, 0.003, 0.01, 0.03] if B <= 0.0005 else ([0.03, 0.1, 0.3, 1] if B <= 0.002 else [0.3, 1, 3, 10])
 BEL = [0, 0.25, 0.5]                      # belief: 0 symmetric update; else prior-corrected with discount nu
-BETA = [0]                                # look-ahead discount; 0.5 and 0.8 were tried and did not help (results4_beta)
+BETA = [0]                                # look-ahead discount; 0.5 and 0.8 were tried and did not help (archive/results_beta)
 GRIDS = {'gan': [None], 'oracle': [None],
          'zakeri': [1, 2, 3, 5], 'pehl': [(A, q) for A in (1, 3, 10) for q in (0.5, 0.9, 1.1)],
          'basn': [1, 2, 5, 10, 50]}
@@ -27,8 +27,8 @@ POLS = ['cadpp', 'cadpp_blind', 'cadpp_label', 'zakeri', 'gan', 'pehl', 'basn', 
 
 def job(a):
     pol, B, par, over, s, f, part = a
-    P = dict(sim3.P); P.update({k: v for k, v in over.items() if not k.startswith('_')})
-    r = sim3.run(pol, B, par, s, P=P, mixlog=over.get('_mix', False), split=split(f, part))
+    P = dict(sim.P); P.update({k: v for k, v in over.items() if not k.startswith('_')})
+    r = sim.run(pol, B, par, s, P=P, mixlog=over.get('_mix', False), split=split(f, part))
     return (pol, B, json.dumps(par), json.dumps(over), s, f, part), r
 
 def run_jobs(jobs):
@@ -111,6 +111,6 @@ if __name__ == '__main__':
         json.dump(out, open(f'{OUT}/V.json', 'w')); print('V', flush=True)
     if 'mix' in what:
         r, _ = sweep([('mix', 0.002, {'_mix': True})], ['cadpp'])
-        LT = sim3.link_tables(sim3.P)
+        LT = sim.link_tables(sim.P)
         json.dump(dict(dist=LT['dist'].tolist(), q2=LT['q2'].tolist(), E2=LT['E2'].tolist(), mix=r['mix']['cadpp']['mix']), open(f'{OUT}/mix.json', 'w'))
     print('done', flush=True)
