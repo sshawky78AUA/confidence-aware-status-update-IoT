@@ -32,7 +32,7 @@ def budget_ticks(a_):
 
 # ---------------- Fig. 3: budget ----------------
 b = json.load(open(f'{R}/budget.json')); Bs = sorted(b, key=float); x = [float(v)*1e3 for v in Bs]
-fig, ax = plt.subplots(1, 3, figsize=(PAGE_W, 1.22))
+fig, ax = plt.subplots(1, 3, figsize=(PAGE_W, 1.65))
 for pol in ALL: errline(ax[0], x, [b[v][pol] for v in Bs], pol)
 ax[0].axhline(b[Bs[-1]]['oracle']['aoii'], color='k', ls=':', lw=0.9, label='Genie (knows $X$; %.2f mJ/slot)' % (1e3*b[Bs[-1]]['oracle']['energy']))
 ax[0].set(xscale='log', yscale='log', ylabel='average AoII (slots)')
@@ -47,8 +47,8 @@ ax[2].axhline(0, color='k', lw=0.6)
 ax[2].set(xscale='log', ylabel='AoII reduction (%)', ylim=(-45, 100))
 for a, t, nt in zip(ax, '(a) (b) (c)'.split(), ['average AoII', 'slots in which the GS is wrong', 'AoII reduction by CA-DPP']): tag(a, t, nt); budget_ticks(a)
 ax[0].set_ylim(0.12, 25); log_yticks(ax[0], [0.2, 0.5, 1, 2, 5, 10, 20])
-ordered_legend(fig, ax[0], extra='Genie (knows $X$; %.2f mJ/slot)' % (1e3*b[Bs[-1]]['oracle']['energy']))
-fig.tight_layout(w_pad=1.8, rect=(0, 0.045, 1, 1))
+ordered_legend(fig, ax[0], extra='Genie (knows $X$; %.2f mJ/slot)' % (1e3*b[Bs[-1]]['oracle']['energy']), y=1.17)
+fig.tight_layout(w_pad=1.8, rect=(0, 0.035, 1, 1))
 fig.text(0.5, 0.0, r'energy budget $\bar E$ (mJ/slot)', ha='center', va='bottom', fontsize=8); fig.savefig(FIG+'fig_budget.pdf'); 
 
 # ---------------- Fig. 4: sensitivity ----------------

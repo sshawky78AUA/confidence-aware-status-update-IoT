@@ -632,12 +632,6 @@ No prior policy addresses our exact problem, so we adapt the four closest design
 \end{itemize}
 Two ablations isolate parts of CA-DPP. The \emph{confidence-blind} version replaces the confidence $c(t)$ by the precision of the label value on tuning data, i.e., by $\Prob\{X=\lab\mid\lab(t)=\lab\}$. Its belief still uses the class prior, and it still distinguishes ``flooded'' labels from ``dry'' ones, but it treats all frames with the same label alike. The \emph{label-only} version never uploads raw data. Finally, a \emph{genie} that knows $X(t)$ and sends an error-free update whenever the GS is wrong gives a floor for the AoII.
 
-\subsection{Evaluation Protocol}
-Chips from the same flood event look alike, so results from a single tuning/test split depend strongly on which chips fall in each set. In preliminary experiments that tuned on the official validation split and tested on the test split, the gains of CA-DPP were much larger than under the cross-validation below, because the chips of the two splits differ systematically. We therefore use $5$-fold cross-validation over the $174$ validation and test chips. For each fold, every parameter is chosen on the other four folds. For CA-DPP and its ablations these are $V$ (four values per budget, between $10^{-3}$ and $10$) and the belief update ($\nu\in\{0.25,0.5\}$ with the class prior, or the symmetric update). For the baselines they are the thresholds listed above. The same four folds give the source statistics, the ground error $\ee_{\rm g}(c)$ in seven confidence bins, and the label precisions of the confidence-blind version. Among the parameter values whose energy stays within $5\%$ of the budget, we keep the one with the lowest AoII.
-
-Each selected policy then runs four times on the held-out fold. Each run visits the chips of the fold four times in random order, with fresh fading and blockage, for about $27{,}000$ slots. This gives $20$ held-out runs per policy and setting. Runs with the same index share all random numbers across policies, so the comparison between two policies is paired. We report means with $95\%$ confidence intervals, paired $95\%$ confidence intervals of the relative change in AoII, paired $t$-tests, and the number of folds in which CA-DPP has the lower mean.
-
-\subsection{AoII Under an Energy Budget}\label{res:budget}
 \begin{table*}[t]
 \caption{Trace-driven results at two energy budgets (mean $\pm$ 95\% confidence half-width over 20 held-out runs: 5-fold cross-validation over chips, 4 runs per fold). $\Delta$: change in average AoII obtained by CA-DPP relative to the policy in that row (negative means CA-DPP is lower), with paired 95\% confidence interval, paired $t$-test $p$-value, and the number of folds (out of 5) in which CA-DPP has the lower mean.}
 \label{tab:results}
@@ -662,6 +656,13 @@ Genie (knows $X$) & \multicolumn{8}{l}{AoII $0.171\pm0.011$, $\Prob$(GS wrong) $
 \end{tabular}
 \end{table*}
 
+\subsection{Evaluation Protocol}
+Chips from the same flood event look alike, so results from a single tuning/test split depend strongly on which chips fall in each set. In preliminary experiments that tuned on the official validation split and tested on the test split, the gains of CA-DPP were much larger than under the cross-validation below, because the chips of the two splits differ systematically. We therefore use $5$-fold cross-validation over the $174$ validation and test chips. For each fold, every parameter is chosen on the other four folds. For CA-DPP and its ablations these are $V$ (four values per budget, between $10^{-3}$ and $10$) and the belief update ($\nu\in\{0.25,0.5\}$ with the class prior, or the symmetric update). For the baselines they are the thresholds listed above. The same four folds give the source statistics, the ground error $\ee_{\rm g}(c)$ in seven confidence bins, and the label precisions of the confidence-blind version. Among the parameter values whose energy stays within $5\%$ of the budget, we keep the one with the lowest AoII.
+
+Each selected policy then runs four times on the held-out fold. Each run visits the chips of the fold four times in random order, with fresh fading and blockage, for about $27{,}000$ slots. This gives $20$ held-out runs per policy and setting. Runs with the same index share all random numbers across policies, so the comparison between two policies is paired. We report means with $95\%$ confidence intervals, paired $95\%$ confidence intervals of the relative change in AoII, paired $t$-tests, and the number of folds in which CA-DPP has the lower mean.
+
+\subsection{AoII Under an Energy Budget}\label{res:budget}
+
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/fig_budget.pdf}
@@ -673,7 +674,7 @@ Fig.~\ref{fig:budget} and Table~\ref{tab:results} compare CA-DPP with the baseli
 
 Against the AoII-threshold policy, the outcome depends on the budget. At $0.25$\,mJ/slot, CA-DPP lowers the AoII by $22\%\pm12\%$ ($p=0.002$, four folds of five), and the $99$th percentile of the AoII drops from $19.2$ to $12.3$ slots. Here the UAV can send few labels, and the confidence decides which disagreements deserve them. At $0.5$\,mJ/slot the reduction is $11\%\pm7\%$ and not significant ($p=0.10$). From $1$\,mJ/slot on, the threshold policy with $k=1$ reports every disagreement for about $0.84$\,mJ/slot and matches CA-DPP; the differences range from $-3\%$ to $+14\%$ with $p\ge0.09$. When labels are this cheap, a wrong label is corrected by the next frame within a slot or two, which the one-step gain of Lemma~\ref{lem:onestep} ignores. We tested a discounted look-ahead over several slots of silence in place of the one-step gain, and it did not help.
 
-\begin{figure}[t]
+\begin{figure}[!tb]
 \centering
 \includegraphics[width=\columnwidth]{figures/fig_path.pdf}
 \caption{A sample path of CA-DPP at $\bar E=0.5$\,mJ/slot ($V=0.01$, $\nu=0.25$). (a) True state (shaded when flooded), GS status, and the slots in which the UAV sends a label (triangles) or uploads the frame (diamond). (b) AoII of the GS status (left axis) and the belief $\mu_t$ that the GS is wrong (right axis).}
@@ -700,16 +701,16 @@ Fig.~\ref{fig:sens}(a) lowers the on-board accuracy at $0.5$\,mJ/slot. The AoII 
 As the share of blocked slots grows from $0$ to $50\%$ (Fig.~\ref{fig:sens}(b)), all policies lose ground and their order is unchanged. CA-DPP stays $9\%$ to $15\%$ below the threshold policy ($0.009\le p\le0.1$). The confidence-blind and label-only versions are $1.5\%$ to $11\%$ below CA-DPP at this budget, so at $0.5$\,mJ/slot raw uploads cost slightly more than they return. Fig.~\ref{fig:sens}(c) varies the size of the raw frame at $2$\,mJ/slot. With $12.5$\,kB frames, CA-DPP is $15\%$ better than the label-only version and matches the threshold policy. With $200$\,kB frames the advantage over label-only shrinks to $3.5\%$, because uploads become more expensive and less reliable, and the policy uploads less often without any retuning.
 
 \subsection{The Weight $V$ and the Role of Mobility}\label{res:V}
-\begin{figure}[t]
+\begin{figure}[!tb]
 \centering
 \includegraphics[width=\columnwidth]{figures/fig_V_mix.pdf}
 \caption{(a) AoII of CA-DPP versus $V$ at $\bar E=0.5$\,mJ/slot; the top axis gives the energy spent, and the shaded values of $V$ stay within $4\%$ of the budget. (b) Share of unblocked slots with a label or a raw upload versus the distance to the GS, at $\bar E=2$\,mJ/slot.}
 \label{fig:Vmix}
 \end{figure}
 
-Fig.~\ref{fig:Vmix}(a) shows the trade-off governed by $V$ at $0.5$\,mJ/slot. Raising $V$ from $10^{-3}$ to $3$ lowers the AoII from $0.79$ to $0.41$. A larger $V$, however, lets the energy debt grow larger before it raises the price, and over a run of about $27{,}000$ slots the energy spent rises from $0.50$ to $1.51$\,mJ/slot. Values of $V$ up to $10^{-2}$ stay within $4\%$ of the budget. This is the finite-horizon face of Theorem~\ref{thm:budget}: the budget is met in the long run for every $V$, but the transient excess grows with $V$, so $V$ must be matched to the mission length.
+Fig.~\ref{fig:Vmix}(a) shows the trade-off governed by $V$ at $0.5$\,mJ/slot. Raising $V$ from $10^{-3}$ to $3$ lowers the AoII from $0.79$ to $0.41$. A larger $V$, however, lets the debt grow before it raises the price: over about $27{,}000$ slots the energy spent rises from $0.50$ to $1.51$\,mJ/slot. Values of $V$ up to $10^{-2}$ stay within $4\%$ of the budget. Theorem~\ref{thm:budget} holds for every $V$ in the long run, but the transient excess grows with $V$, so $V$ must match the mission length.
 
-Fig.~\ref{fig:Vmix}(b) shows how CA-DPP exploits the trajectory at $2$\,mJ/slot. Within $850$\,m of the GS, where uploads are cheap and reliable, it uploads the frame in $5.9\%$ of the unblocked slots and sends labels in $2.0\%$. Beyond $2.15$\,km it uploads in only $0.1\%$ and sends labels in $3.8\%$. The UAV thus asks the ground when asking is cheap and relies on its own labels when it is not, with no rule that refers to the distance explicitly. The distance enters only through $q_a(g)$ and $E_a(g)$ in~\eqref{eq:rule}.
+Fig.~\ref{fig:Vmix}(b) shows how CA-DPP exploits the trajectory at $2$\,mJ/slot. Within $850$\,m of the GS, where uploads are cheap and reliable, it uploads the frame in $5.9\%$ of the unblocked slots and sends labels in $2.0\%$. Beyond $2.15$\,km it uploads in only $0.1\%$ and sends labels in $3.8\%$. The UAV thus asks the ground when asking is cheap and relies on its own labels otherwise, although the distance enters~\eqref{eq:rule} only through $q_a(g)$ and $E_a(g)$.
 %% =====================================================================
 \section{Discussion}\label{sec:discussion}
 %% =====================================================================
@@ -720,20 +721,18 @@ Fig.~\ref{fig:Vmix}(b) shows how CA-DPP exploits the trajectory at $2$\,mJ/slot.
 
 \emph{Q3.} The value of raw uploads depends on the link more than on the classifier. Uploads pay off at budgets of $2$\,mJ/slot and above, near the GS, and with small frames; at tight budgets the label-only version does as well.
 
-Two lessons for the design of IoT devices with on-board inference follow.
-
-First, a device should never send a label that agrees with the receiver (Proposition~\ref{prop:confirm}); this rule alone accounts for the $52\%$ to $75\%$ gap to the pre-identification and age-threshold policies.
+Two design lessons follow. First, a device should never send a label that agrees with the receiver (Proposition~\ref{prop:confirm}); this rule alone accounts for the $52\%$ to $75\%$ gap to the pre-identification and age-threshold policies.
 
 Second, the classifier should be calibrated on board. Isotonic calibration is a lookup table at run time, and the prior correction~\eqref{eq:lik} matters because monitored events, such as floods, fires and intruders, are rare.
 
 \subsection{Correlated Errors}
-The main weakness of CA-DPP at large budgets is Assumption~\ref{as:inf}(ii): the on-board errors come in runs (Section~\ref{sec:results}-B). The tempered update~\eqref{eq:post} discounts every frame equally and cannot tell new evidence from a repetition of the last error. A hidden Markov model of the classifier state could, at twice the belief size; Lemma~\ref{lem:onestep} would still apply, since it depends only on $\mu_t$ and $S_t$.
+The main weakness of CA-DPP at large budgets is Assumption~\ref{as:inf}(ii): the on-board errors come in runs (Section~\ref{sec:results}-B). The tempered update~\eqref{eq:post} discounts every frame equally and cannot tell new evidence from a repetition of the last error. A hidden Markov model of the classifier state could, at twice the belief size, and Lemma~\ref{lem:onestep} would still apply.
 
 \subsection{Other IoT Settings}
-Nothing in the model is specific to UAVs or floods. The link and energy models apply to any device whose channel varies predictably, such as a satellite in low Earth orbit that sees a ground station only during passes; there, the renewal formulation of Remark~\ref{rem:opt} could spend more just before a predictable outage. A non-binary scene, such as a land-cover class, needs a belief over the AoII and the current class, but the gains keep their structure: an update removes AoII if it is right and creates AoII if it is wrong.
+Nothing in the model is specific to UAVs or floods. The link and energy models fit any device whose channel varies predictably, such as a satellite in low Earth orbit that sees a ground station only during passes. A non-binary scene, such as a land-cover class, needs a belief over the AoII and the current class, but the gains keep their structure: an update removes AoII if it is right and creates AoII if it is wrong.
 
 \subsection{Limitations}
-Five limitations remain. First, the policy minimizes the AoII of the next slot only, and we have no bound on its gap to the optimal policy of (P). Second, the threshold structure of Proposition~\ref{prop:threshold} is proved for the per-slot rule~\eqref{eq:rule} within each confidence bin of the ground error; whether the optimal policy of (P) shares it is open. Third, Sentinel-2 imagery is a proxy for UAV frames, which UAV datasets such as FLAME~\cite{shamsoshoara2021flame} and AIDER~\cite{kyrkou2020aider} would replace. Fourth, the energy model is analytic, not measured. Fifth, the imagery is not tied to the UAV position, so revisits and route planning are left out.
+Five limitations remain. First, the policy minimizes the AoII of the next slot only, and we have no bound on its gap to the optimal policy of (P). Second, the threshold structure of Proposition~\ref{prop:threshold} is proved for the per-slot rule~\eqref{eq:rule} within each confidence bin of the ground error; whether the optimal policy of (P) shares it is open. Third, Sentinel-2 imagery stands in for UAV frames (FLAME~\cite{shamsoshoara2021flame} and AIDER~\cite{kyrkou2020aider} are UAV alternatives). Fourth, the energy model is analytic, not measured. Fifth, the imagery is not tied to the UAV position, so revisits and route planning are left out.
 
 %% =====================================================================
 \section{Conclusion}\label{sec:concl}
