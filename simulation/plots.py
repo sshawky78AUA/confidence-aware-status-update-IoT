@@ -21,8 +21,10 @@ def ordered_legend(fig, ax0, extra=None, y=1.25):
     for a_, b_ in zip(col, base):          # matplotlib fills legends column by column
         for n in (a_, b_):
             hh.append(H.get(n, BLANK)); ll.append(n)
-    fig.legend(hh, ll, loc='upper center', ncol=4, bbox_to_anchor=(0.5, y), columnspacing=1.2)
+    fig.legend(hh, ll, loc='upper center', ncol=4, bbox_to_anchor=(0.5, y), columnspacing=0.9, handlelength=1.8)
 BT = [0.25, 0.5, 1, 2, 5, 10]
+# Figs. 5 and 7 share one layout: same canvas, panel positions, legend and title placement
+FIG3 = (0.82*PAGE_W, 1.62); ADJ3 = dict(left=0.075, right=0.995, bottom=0.24, top=0.86, wspace=0.36); LEG_Y = 1.2
 from matplotlib.ticker import FixedLocator, FixedFormatter, NullLocator
 def log_yticks(a_, ticks):
     lo, hi = a_.get_ylim(); tk = [v for v in ticks if lo <= v <= hi]
@@ -32,7 +34,7 @@ def budget_ticks(a_):
 
 # ---------------- Fig. 3: budget ----------------
 b = json.load(open(f'{R}/budget.json')); Bs = sorted(b, key=float); x = [float(v)*1e3 for v in Bs]
-fig, ax = plt.subplots(1, 3, figsize=(PAGE_W, 1.65))
+fig, ax = plt.subplots(1, 3, figsize=FIG3)
 for pol in ALL: errline(ax[0], x, [b[v][pol] for v in Bs], pol)
 ax[0].axhline(b[Bs[-1]]['oracle']['aoii'], color='k', ls=':', lw=0.9, label='Genie (knows $X$; %.2f mJ/slot)' % (1e3*b[Bs[-1]]['oracle']['energy']))
 ax[0].set(xscale='log', yscale='log', ylabel='average AoII (slots)')
@@ -47,12 +49,12 @@ ax[2].axhline(0, color='k', lw=0.6)
 ax[2].set(xscale='log', ylabel='AoII reduction (%)', ylim=(-45, 100))
 for a, t, nt in zip(ax, '(a) (b) (c)'.split(), ['average AoII', 'slots in which the GS is wrong', 'AoII reduction by CA-DPP']): tag(a, t, nt); budget_ticks(a)
 ax[0].set_ylim(0.12, 25); log_yticks(ax[0], [0.2, 0.5, 1, 2, 5, 10, 20])
-ordered_legend(fig, ax[0], extra='Genie (knows $X$; %.2f mJ/slot)' % (1e3*b[Bs[-1]]['oracle']['energy']), y=1.17)
-fig.tight_layout(w_pad=1.8, rect=(0, 0.035, 1, 1))
-fig.text(0.5, 0.0, r'energy budget $\bar E$ (mJ/slot)', ha='center', va='bottom', fontsize=8); fig.savefig(FIG+'fig_budget.pdf'); 
+ordered_legend(fig, ax[0], extra='Genie (knows $X$; %.2f mJ/slot)' % (1e3*b[Bs[-1]]['oracle']['energy']), y=LEG_Y)
+fig.subplots_adjust(**ADJ3)
+fig.text(0.5, 0.035, r'energy budget $\bar E$ (mJ/slot)', ha='center', va='bottom', fontsize=8); fig.savefig(FIG+'fig_budget.pdf'); 
 
 # ---------------- Fig. 4: sensitivity ----------------
-fig, ax = plt.subplots(1, 3, figsize=(PAGE_W, 1.6), sharey=True)
+fig, ax = plt.subplots(1, 3, figsize=FIG3, sharey=True)
 a = json.load(open(f'{R}/acc.json')); ks = ['on8', 'n2', 'n4', 'n6', 'n8']
 ACC = json.load(open(f'{R}/acc_values.json')) if False else None
 import numpy as _np
@@ -69,32 +71,36 @@ ax[2].set(xscale='log', yscale='log', xlabel='raw frame size $L_2$ (kB)')
 ax[2].set_xticks([12.5, 25, 50, 100, 200]); ax[2].set_xticklabels(['12.5', '25', '50', '100', '200']); ax[2].minorticks_off()
 for a_, t, nt in zip(ax, '(a) (b) (c)'.split(), [r'weaker on-board model, $\bar E=0.5$ mJ/slot', r'blockage, $\bar E=0.5$ mJ/slot', r'frame size, $\bar E=2$ mJ/slot']): tag(a_, t, nt)
 ax[0].set_ylim(0.25, 25); log_yticks(ax[0], [0.5, 1, 2, 5, 10, 20])
-ordered_legend(fig, ax[0], y=1.19)
-fig.tight_layout(w_pad=0.8); fig.savefig(FIG+'fig_sensitivity.pdf'); 
+for a_ in ax[1:]: a_.tick_params(labelleft=True)
+ordered_legend(fig, ax[0], y=LEG_Y)
+fig.subplots_adjust(**ADJ3); fig.savefig(FIG+'fig_sensitivity.pdf'); 
 
 # ---------------- Fig. 5: V trade-off and action mix ----------------
 V = json.load(open(f'{R}/V.json')); Vs = sorted(V, key=float); xv = [float(v) for v in Vs]
 mx = json.load(open(f'{R}/mix.json'))
-fig, ax = plt.subplots(1, 2, figsize=(COL_W, 1.7))
-# (a) AoII versus V; the top axis gives the energy spent at selected V, the shade marks V within 5% of the budget
-en = {float(v): 1e3*V[v]['energy'][0] for v in Vs}
+fig, ax = plt.subplots(1, 2, figsize=(COL_W, 1.75), gridspec_kw={'width_ratios': [1.12, 1]})
+# (a) AoII (left axis) and energy spent (right axis) versus V; shade = V whose energy stays within 4% of the budget
+en = [1e3*V[v]['energy'][0] for v in Vs]
 ax[0].axvspan(5e-4, 0.0175, color=OI['grey'], alpha=0.15, lw=0)
-ax[0].text(7e-4, 0.215, 'within\nbudget', fontsize=6, color='#555555', va='bottom', linespacing=0.95)
-ax[0].errorbar(xv, [V[v]['aoii'][0] for v in Vs], yerr=[V[v]['aoii'][1] for v in Vs], color=OI['verm'], ecolor=OI['verm'], marker='o', ms=3, elinewidth=0.6)
-ax[0].set(xscale='log', xlabel='$V$', ylabel='average AoII (slots)', xlim=(6e-4, 5), ylim=(0.2, 1.0))
+ax[0].text(0.0058, 0.985, 'within\nbudget', fontsize=6, color='#444444', va='top', ha='center', linespacing=0.95)
+ax[0].errorbar(xv, [V[v]['aoii'][0] for v in Vs], yerr=[V[v]['aoii'][1] for v in Vs], color=OI['verm'], ecolor=OI['verm'], marker='o', ms=3, elinewidth=0.6, label='AoII')
+ax[0].set(xscale='log', xlabel='weight $V$', xlim=(6e-4, 5), ylim=(0.2, 1.0))
+ax[0].set_ylabel('average AoII (slots)', color=OI['verm']); ax[0].tick_params(axis='y', colors=OI['verm'], right=False)
 ax[0].set_xticks([1e-3, 1e-2, 1e-1, 1]); ax[0].minorticks_off()
-top = ax[0].twiny(); top.set_xscale('log'); top.set_xlim(ax[0].get_xlim()); top.grid(False); top.minorticks_off()
-top.set_xticks([1e-3, 1e-2, 1e-1, 1]); top.set_xticklabels(['%.2f' % en[k] for k in (1e-3, 1e-2, 0.1, 1)], fontsize=6)
-# (b) action mix versus distance, side-by-side bars
+r = ax[0].twinx(); r.grid(False)
+r.plot(xv, en, color=OI['blue'], marker='s', ms=2.8, ls=(0, (3, 1.2)), mfc='white', mew=0.8, label='energy')
+r.axhline(0.5, color=OI['blue'], lw=0.6, ls=':'); r.text(4.2, 0.46, 'budget', fontsize=6, color=OI['blue'], ha='right', va='top')
+r.set_ylim(0.25, 1.7); r.set_yticks([0.5, 1.0, 1.5]); r.tick_params(axis='y', colors=OI['blue'], labelsize=6.5, direction='in')
+r.set_ylabel('energy (mJ/slot)', color=OI['blue'], labelpad=2)
+# (b) action mix versus distance, one line per action (same colors as Fig. 1: label blue, raw orange)
 d = np.array(mx['dist']); m = np.array(mx['mix']); edges = np.linspace(200, 2800, 9); idx = np.clip(np.digitize(d, edges)-1, 0, 7)
 n = np.array([m[idx == i].sum() for i in range(8)]); lab = np.array([m[idx == i, 1].sum() for i in range(8)])/n; raw = np.array([m[idx == i, 2].sum() for i in range(8)])/n
-ctr = 0.5*(edges[1:]+edges[:-1])/1e3; bw = 0.14
-ax[1].bar(ctr-bw/2, 100*lab, width=bw, color=OI['blue'], label='label')
-ax[1].bar(ctr+bw/2, 100*raw, width=bw, color=OI['orange'], label='raw upload')
-ax[1].set(xlabel='distance to GS (km)', ylabel='share of slots (%)', xlim=(0.15, 2.85)); ax[1].set_xticks([0.5, 1, 1.5, 2, 2.5])
-ax[1].legend(loc='upper right', fontsize=6.2, handlelength=1.0, ncol=2, columnspacing=0.8, borderaxespad=0.2); ax[1].set_ylim(0, 10)
-top.set_xlabel('energy spent (mJ/slot)', fontsize=6.5, labelpad=2)
-fig.tight_layout(w_pad=1.0, rect=(0, 0, 1, 0.95))
+ctr = 0.5*(edges[1:]+edges[:-1])/1e3
+ax[1].plot(ctr, 100*lab, color=OI['blue'], marker='^', ms=3.5, label='label')
+ax[1].plot(ctr, 100*raw, color=OI['orange'], marker='D', ms=3, label='raw upload')
+ax[1].set(xlabel='distance to GS (km)', ylabel='share of slots (%)', xlim=(0.2, 2.8), ylim=(0, 8)); ax[1].set_xticks([0.5, 1, 1.5, 2, 2.5])
+ax[1].legend(loc='upper right', fontsize=6.2, handlelength=1.6, borderaxespad=0.3)
+fig.tight_layout(w_pad=0.6, rect=(0, 0, 1, 0.93))
 for a_, tt, nt in zip(ax, ['(a)', '(b)'], [r'weight $V$, $\bar E=0.5$ mJ/slot', r'actions, $\bar E=2$ mJ/slot']):
     bb = a_.get_position()
     fig.text((bb.x0+bb.x1)/2, 0.99, tt + ' ' + nt, fontsize=7, va='top', ha='center')

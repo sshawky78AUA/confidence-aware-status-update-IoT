@@ -332,14 +332,14 @@ The budget is proved; the AoII side is heuristic, as the $O(1/V)$ gap of~\cite{n
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_budget.pdf}
+\includegraphics{figures/fig_budget.pdf}
 \caption{Performance versus the budget $\bar E$: $20$ held-out runs per point, $95\%$ confidence intervals. (a) Average AoII. (b) Share of slots with the GS wrong. (c) AoII reduction by CA-DPP relative to each policy (paired; positive favors CA-DPP). CA-DPP beats three baselines at every budget and the AoII-threshold policy at tight budgets.}
 \label{fig:budget}
 \end{figure*}
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_sensitivity.pdf}
+\includegraphics{figures/fig_sensitivity.pdf}
 \caption{Sensitivity ($20$ runs per point): (a) on-board accuracy and (b) blocked share $\rho_{\rm b}/(\rho_{\rm b}+\rho_{\rm u})$ at $\bar E=0.5$\,mJ/slot; (c) raw frame size at $\bar E=2$\,mJ/slot. CA-DPP degrades least as the classifier weakens.}
 \label{fig:sens}
 \end{figure*}
@@ -377,7 +377,7 @@ As the share of blocked slots grows from $0$ to $50\%$ (Fig.~\ref{fig:sens}(b)),
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/fig_V_mix.pdf}
-\caption{(a) AoII of CA-DPP vs.\ $V$ at $\bar E=0.5$\,mJ/slot (top axis: energy spent; shaded: within $4\%$ of the budget). (b) Share of unblocked slots with a label or upload vs.\ distance to the GS, $\bar E=2$\,mJ/slot: CA-DPP uploads near the GS and labels far away.}
+\caption{(a) AoII (left) and energy spent (right, dashed) of CA-DPP vs.\ $V$ at $\bar E=0.5$\,mJ/slot; shaded: within $4\%$ of the budget (dotted). (b) Share of unblocked slots with a label or upload vs.\ distance to the GS at $\bar E=2$\,mJ/slot: uploads dominate near the GS, labels beyond about $0.8$\,km.}
 \label{fig:Vmix}
 \end{figure}
 
