@@ -132,7 +132,7 @@ The GS has no sensor of its own. Everything it knows about the patch below the U
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/fig_scenario.pdf}
-\caption{The scenario. A UAV flies over a disaster area (flooding in this example), photographs the patch below it and labels the photo on board with a confidence. In each slot it stays silent, sends its label (blue), or sends the photo to the ground classifier (orange). The GS status is the last label received, and every packet is acknowledged with it. Buildings can block the link, and the cost of a photo grows with the distance. Inset: the AoII grows by one per slot while the GS status is wrong and returns to zero when a delivered label or a change of the scene makes it right.}
+\caption{The scenario. A UAV flies over a disaster area (flooding in this example), photographs the patch below it and labels the photo on board with a confidence. In each slot it stays silent, sends its label (blue), or sends the photo to the ground classifier (orange). The GS status is the last label received, and the GS acknowledges each packet it decodes. Buildings can block the link, and the cost of a photo grows with the distance. Inset: the AoII grows by one per slot while the GS status is wrong and returns to zero when a delivered label or a change of the scene makes it right.}
 \label{fig:system}
 \end{figure}
 
@@ -247,7 +247,7 @@ q_a(g)=(1-\beta)\,\exp\!\Big(-\frac{\gamma_a}{\bar\gamma(g)}\Big),\qquad \gamma_
 for $a\in\{1,2\}$,
 and $q_0\equiv0$. Here $\gamma_a$ is the SNR needed to deliver $L_a$ bits within the window. Since $L_2>L_1$, $\gamma_2>\gamma_1$, so $q_2(g)\le q_1(g)$ in every link state. In our scenario a label gets through almost surely whenever the link is not blocked, while a raw frame succeeds with probability between $0.99$ near the GS and $0.25$ at the far end of the trajectory.
 
-The link is therefore an erasure channel: a packet either arrives intact or is lost, and a lost packet leaves the GS status unchanged. The link never changes the content of a label. Every packet carries a $32$-bit cyclic redundancy check (CRC), and the GS discards a packet whose check fails; a corrupted packet passes with probability about $2^{-32}$. We also assume that acknowledgments, which are short and sent by the GS at higher power, always arrive.
+The link is therefore an erasure channel: a packet either arrives intact or is lost, and a lost packet leaves the GS status unchanged. The link never changes the content of a label. Every packet carries a $32$-bit cyclic redundancy check (CRC), and the GS discards a packet whose check fails; a corrupted packet passes with probability about $2^{-32}$. The GS acknowledges only the packets it decodes, so an acknowledgment missing at the end of the slot tells the UAV that the packet was lost and the GS status is unchanged. We assume that acknowledgments always arrive, since they are one byte long and the GS sends them at higher power.
 
 \begin{remark}[Undetected errors]\label{rem:flip}
 Suppose instead that a decoded label is flipped with a small probability $\ee_{\rm u}$. Because the label is binary, a flipped disagreeing label equals the current GS status, so it changes nothing. A bit error on the link can therefore cancel an update but cannot make a correct GS status wrong. Its only effect is to replace $q_1(g)$ by $q_1(g)(1-\ee_{\rm u})$ in everything that follows. An undetected error in a raw frame corrupts the photo rather than the label, and its effect can be folded into the ground error $\ee_{\rm g}(c)$.
@@ -269,7 +269,7 @@ Let $o(t)\in\{0,1\}$ indicate that the packet sent in slot $t$ is decoded, so $\
 \begin{equation}\label{eq:est}
 \hat X(t+1)=\begin{cases}\lab(t), & a(t)=1,\ o(t)=1,\\ \lab^{\rm g}(t), & a(t)=2,\ o(t)=1,\\ \hat X(t), & \text{otherwise.}\end{cases}
 \end{equation}
-Holding the last label is the natural estimator when the state is persistent ($p_x<\frac12$). The GS acknowledges every decoded packet and includes the new status $\hat X(t+1)$ in the acknowledgment, which costs one byte. The UAV therefore always knows $\hat X(t)$. It never knows $X(t)$.
+Holding the last label is the natural estimator when the state is persistent ($p_x<\frac12$). Each acknowledgment carries the new status $\hat X(t+1)$, and no acknowledgment means that the status did not change, so the UAV always knows $\hat X(t)$. It never knows $X(t)$.
 
 The GS status can be wrong for two reasons. The scene may change, for example when the UAV passes from flooded patches to dry ones, while the GS keeps the old status until the UAV updates it. Or the update itself may be wrong: the small on-board classifier mislabels some photos, especially ambiguous ones such as a dry field after rain, and a wrong label that reaches the GS turns a correct status into a wrong one. What matters to the response teams is how long the status has been wrong: a status that is wrong for one slot does little harm, while one that is wrong for a minute may send a team to the wrong place. We therefore measure how well the GS knows the scene by the AoII~\cite{maatouk2020aoii}. The AoII is zero while the GS status is correct and counts the slots for which it has been wrong otherwise. After the scene moves to $X(t+1)$, it evolves as
 \begin{equation}\label{eq:aoii}

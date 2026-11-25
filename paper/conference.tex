@@ -138,11 +138,11 @@ Let $o(t)\in\{0,1\}$ indicate that the packet of slot $t$ is decoded, so $\Prob\
 \begin{equation}\label{eq:est}
 \hat X(t+1)=\begin{cases}\lab(t), & a(t)=1,\ o(t)=1,\\ \lab^{\rm g}(t), & a(t)=2,\ o(t)=1,\\ \hat X(t), & \text{otherwise.}\end{cases}
 \end{equation}
-Every decoded packet is acknowledged with $\hat X(t+1)$ (one byte), so the UAV knows $\hat X(t)$ but never $X(t)$. After the scene moves to $X(t+1)$, the AoII is
+Only decoded packets are acknowledged, each with $\hat X(t+1)$ (one byte at higher power, assumed to always arrive); a missing acknowledgment means the packet was lost and the status is unchanged. So the UAV knows $\hat X(t)$ but never $X(t)$. After the scene moves to $X(t+1)$, the AoII is
 \begin{equation}\label{eq:aoii}
 \Delta(t+1)=\big(\Delta(t)+1\big)\,\ind{X(t+1)\neq\hat X(t+1)},\quad \Delta(0)=0.
 \end{equation}
-In slot $t$ the events occur in this order: the UAV observes $g(t)$, captures $Y(t)$ and computes $(\lab(t),c(t))$; it chooses $a(t)$; the packet is decoded with probability $q_{a(t)}(g(t))$ and the GS updates its status by~\eqref{eq:est} and acknowledges; finally the scene moves to $X(t+1)$ and $\Delta(t+1)$ follows~\eqref{eq:aoii}.
+In slot $t$ the events occur in this order: the UAV observes $g(t)$, captures $Y(t)$ and computes $(\lab(t),c(t))$; it chooses $a(t)$; the packet is decoded with probability $q_{a(t)}(g(t))$, and if so the GS updates its status by~\eqref{eq:est} and acknowledges; finally the scene moves to $X(t+1)$ and $\Delta(t+1)$ follows~\eqref{eq:aoii}.
 
 %% =====================================================================
 \section{Problem Formulation}\label{sec:problem}
