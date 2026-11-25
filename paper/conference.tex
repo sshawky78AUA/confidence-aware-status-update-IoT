@@ -255,7 +255,7 @@ Let $y=\Lambda_t^{\nu}$. By~\eqref{eq:post}, $S_t=yS^-_t/D$ and $1-\mu_t=(1-\mu^
 \end{proof}
 
 \begin{proposition}[Confidence thresholds]\label{prop:threshold}
-Let $\ee_{\rm g}$ be constant and fix $\pi^-_t$, $\hat X(t)$, $g$ and $\lambda(t)$. (a) If $d(t)=1$, there are $c_{\rm r}\le c_{\lab}$ such that \eqref{eq:rule} stays silent for $c<c_{\rm r}$, uploads raw data for $c_{\rm r}\le c<c_{\lab}$ and sends the label for $c\ge c_{\lab}$ (any interval may be empty). (b) If $d(t)=0$, it uploads raw data iff $c\le c^0_{\rm r}$ for some $c^0_{\rm r}$. (c) For fixed $\mu^-_t$, the silent regions shrink as $S^-_t$ grows and grow with $\lambda(t)$.
+Let $\ee_{\rm g}(c)$ be constant on a confidence bin $I$, fix $\pi^-_t$, $\hat X(t)$, $g$ and $\lambda(t)$. (a) If $d(t)=1$, there are $c_{\rm r}\le c_{\lab}$ such that, on $I$, \eqref{eq:rule} stays silent for $c<c_{\rm r}$, uploads raw data for $c_{\rm r}\le c<c_{\lab}$ and sends the label for $c\ge c_{\lab}$ (any interval may be empty). (b) If $d(t)=0$, it uploads raw data iff $c\le c^0_{\rm r}$ for some $c^0_{\rm r}$. (c) For fixed $\mu^-_t$, the silent regions shrink as $S^-_t$ grows and grow with $\lambda(t)$.
 \end{proposition}
 \begin{proof}
 Let $f_a=Vq_aG_a-\lambda E_a$. Since $r,w<\tfrac12$, $G_1$, $G_2$ have the form $AS_t-B(1-\mu_t)$ with $A,B\ge0$. So does $q_1G_1-q_2G_2$, with $A=(1-2w)(q_1-q_2(1-\ee_{\rm g}))$ and $B=(1-2r)(q_1-q_2\ee_{\rm g})$, both nonnegative as $q_2\le q_1$. By Lemma~\ref{lem:mono}, $f_2-f_0$ and $f_1-f_2$ are nondecreasing in $\Lambda_t$. For $d=1$, $\Lambda_t$ increases in $c$, so $f_a$ has increasing differences in $(a,c)$ for the order $0\prec2\prec1$, and Topkis' theorem gives (a). For $d=0$, Proposition~\ref{prop:confirm} excludes the label and $f_2-f_0$ is nonincreasing in $c$, giving (b). For (c), $S^-_t$ enters $N$ with coefficient $Ay\ge0$, and each $f_a-f_0$ ($a\neq0$) decreases in $\lambda$.
@@ -323,7 +323,7 @@ If the UAV or a ground node harvests energy into a battery with content $B(t)$, 
 \end{remark}
 
 \begin{remark}[Performance]
-The $O(1/V)$ optimality gap of drift-plus-penalty~\cite{neely2010book} assumes that per-slot costs do not depend on past decisions, which does not hold for AoII. A version that applies~\eqref{eq:rule} between deliveries fits the renewal framework of~\cite{neely2013renewal}; we leave its analysis to future work.
+The budget is proved; the AoII side is heuristic, as the $O(1/V)$ gap of~\cite{neely2010book} needs costs independent of past decisions. A version that applies~\eqref{eq:rule} between deliveries fits the renewal framework of~\cite{neely2013renewal}; we leave its analysis to future work.
 \end{remark}
 
 %% =====================================================================

@@ -127,7 +127,7 @@ We consider a UAV that flies over a disaster area and reports to a ground statio
 
 Since the UAV moves, the patch below it changes from slot to slot, and consecutive footprints partly overlap. We do not model the whole area. We model only what the UAV sees along its route: in slot $t$, $X(t)$ is the state of the patch below the UAV and $Y(t)$ is the photo of that patch. The position $\mathbf{u}(t)$ affects the model in one place only, the link to the GS. The distance and the elevation angle to the GS determine how likely a packet is to arrive and how much energy it costs. The route can have any shape. In our evaluation it is a circle, so the UAV passes alternately through parts of the route close to the GS and far from it.
 
-The GS has no sensor of its own. Everything it knows about the patch below the UAV comes from the UAV. We call the GS status the label that the GS currently holds for this patch: it is the last label the GS received, either a label sent by the UAV or the label that a larger classifier at the GS produced from a photo sent by the UAV. The GS holds this status until the next update arrives, and the response teams act on it. In each slot the UAV can therefore stay silent, send its on-board label, or send the photo. A label is a few bytes and cheap to send, but it may be wrong. A photo is tens of kilobytes and much more expensive, and it may fail to arrive far from the GS, but the ground classifier labels it almost always correctly. The UAV chooses under an energy budget and without observing the true state. Table~\ref{tab:notation} summarizes the notation.
+The GS has no sensor of its own. Everything it knows about the patch below the UAV comes from the UAV. We call the GS status the label that the GS currently holds for this patch: it is the last label the GS received, either a label sent by the UAV or the label that a larger classifier at the GS produced from a photo sent by the UAV. The GS holds this status until the next update arrives, and the response teams act on it. In each slot the UAV can therefore stay silent, send its on-board label, or send the photo. A label is a few bytes and cheap to send, but it may be wrong. A photo is tens of kilobytes and much more expensive, and it may fail to arrive far from the GS, but the ground classifier labels it almost always correctly. The UAV chooses under an energy budget and without observing the true state; this last fact shapes the whole analysis. Table~\ref{tab:notation} summarizes the notation.
 
 \begin{figure}[t]
 \centering
@@ -329,7 +329,7 @@ where $\E^{\psi}$ is the expectation when the actions follow $\psi$, so that $\b
 \textbf{(P)}\qquad \min_{\psi\in\Psi}\ \bar\Delta^{\psi}\qquad\text{subject to}\qquad \bar E^{\psi}\le\bar E.
 \end{equation}
 
-Three features make (P) hard. First, it is partially observed: the cost $\Delta(t)$ depends on $X(t)$, which the UAV never sees, so the policy must act on its own inference about the state. Second, the cost has memory: by~\eqref{eq:aoii}, a wrong GS status adds to the AoII in every slot until it is corrected, so an action affects the cost of all the following slots, not only of the next one. Third, the energy constraint couples all slots: energy spent now is not available later, so the value of an update depends on the updates that the budget will allow in the future. The rest of this section deals with the first feature by replacing the unknown AoII with a probability distribution over its values, which turns (P) into a problem on a state that the UAV knows. Our policy handles the other two features approximately: Section~\ref{sec:structure} values each action by its effect on the AoII of the next slot, and Section~\ref{sec:lyap} enforces the budget online with a virtual queue that prices energy according to what has already been spent.
+Three features make (P) hard. First, it is partially observed: the cost $\Delta(t)$ depends on $X(t)$, which the UAV never sees, so the policy must act on its own inference about the state. Second, the cost has memory: by~\eqref{eq:aoii}, a wrong GS status adds to the AoII in every slot until it is corrected, so an action affects the cost of all the following slots, not only of the next one. Third, the energy constraint couples all slots: energy spent now is not available later, so the value of an update depends on the updates that the budget will allow in the future. We handle the first feature exactly, in the rest of this section, by replacing the unknown AoII with a probability distribution over its values. We handle the other two approximately: Section~\ref{sec:structure} values each action by its effect on the next slot, and Section~\ref{sec:lyap} prices energy by what has already been spent.
 
 \subsection{A Belief on the AoII}\label{sec:belief}
 The information $\I(t)$ grows with $t$. The following lemma shows that a much smaller object carries everything the UAV needs to predict the AoII.
@@ -362,7 +362,7 @@ Under Assumption~\ref{as:inf}(ii), the label and the confidence depend on the pa
 \end{equation}
 which says how many times more likely the frame is if the GS is wrong than if it is right. By~\eqref{eq:cx}, the first factor is $c(t)/(1-c(t))$ if the label disagrees with the GS and $(1-c(t))/c(t)$ if it agrees. A label that disagrees with the GS thus has $\Lambda_t$ increasing in its confidence: it is evidence that the GS is wrong, and the more so the more confident it is. A label that agrees with the GS is evidence that the GS is right.
 
-Exact Bayes' rule would multiply the mass at $\delta>0$ by $\Lambda_t$ relative to the mass at $\delta=0$. This treats every frame as an independent observation, which overstates the evidence when errors come in runs. If a frame overlaps half of the previous one and the classifier missed the flood in the previous frame, a second miss is far from independent confirmation (Fig.~\ref{fig:inference}(c)). We therefore temper the ratio with an exponent $\nu\in(0,1]$. With $\mu^-_t=\pi^-_t(\Delta>0)$ the prior probability that the GS is wrong, the corrected belief is
+Exact Bayes' rule would multiply the mass at $\delta>0$ by $\Lambda_t$ relative to the mass at $\delta=0$. This treats every frame as an independent observation, which overstates the evidence when errors come in runs. If a frame overlaps half of the previous one and the classifier missed the flood in the previous frame, a second miss is far from independent confirmation (Fig.~\ref{fig:inference}(c)). We therefore temper the ratio with an exponent $\nu\in(0,1]$. This is a practical correction, not a consequence of the model, and $\nu$ is chosen on data. With $\mu^-_t=\pi^-_t(\Delta>0)$ the prior probability that the GS is wrong, the corrected belief is
 \begin{equation}\label{eq:post}
 \pi_t(\delta)=\frac{\pi^-_t(\delta)}{1-\mu^-_t+\mu^-_t\Lambda_t^{\nu}}\times\begin{cases}1, & \delta=0,\\ \Lambda_t^{\nu}, & \delta>0.\end{cases}
 \end{equation}
@@ -396,7 +396,7 @@ The standard approach prices the energy constraint with a Lagrange multiplier $\
 %% =====================================================================
 \section{The Value of Each Action}\label{sec:structure}
 %% =====================================================================
-Any reasonable policy must compare, in each slot, how much each action is expected to lower the AoII with how much energy it costs. This section derives the first quantity in closed form and shows what it implies for the decision. Throughout, we fix slot $t$, let $\xh=\hat X(t)$, and write
+Any reasonable policy must compare, in each slot, how much each action is expected to lower the AoII with how much energy it costs. This section derives the first quantity in closed form and shows what it implies for the decision. We value an action by its effect on the AoII of the next slot, because that effect depends only on the current belief; the effect on later slots depends on future decisions as well, and Section~\ref{sec:lyap} leaves it to the energy price. Throughout, we fix slot $t$, let $\xh=\hat X(t)$, and write
 \begin{equation}\label{eq:rw}
 r=p_{\xh},\qquad w=p_{1-\xh}.
 \end{equation}
@@ -462,7 +462,7 @@ If $d(t)=0$, then $G_1=0$. Hence a policy that minimizes the expected AoII plus 
 If $d(t)=0$, a delivered label leaves the status unchanged, so $J_1=J_0$ and $G_1=0$. Sending it then costs $E_1(g)>0$ and changes nothing else, so silence does at least as well for any energy price $\lambda\ge0$.
 \end{proof}
 
-Proposition~\ref{prop:confirm} rules out a common design, in which the device reports every label so that the receiver can confirm its status: the GS acts only on its status, which a confirmation does not change, and the UAV already knows the label. The pre-identification baseline of Section~\ref{sec:results} spends most of its energy on such labels.
+Proposition~\ref{prop:confirm} rules out a common design in which the device reports every label so that the receiver can confirm its status; the pre-identification baseline of Section~\ref{sec:results} spends most of its energy on such labels.
 
 \subsection{Threshold Structure of the Per-Slot Decision}
 Lemma~\ref{lem:onestep} measures the value of an action in AoII, while its cost is measured in energy. A per-slot rule must convert one into the other. We consider rules of the form
@@ -480,7 +480,7 @@ Fix $\pi^-_t$. For any $A,B\ge0$, the quantity $AS_t-B(1-\mu_t)$ is a nondecreas
 The proof is in Appendix~\ref{app:mono}. Combined with Lemma~\ref{lem:onestep}, it yields the structure of the decision.
 
 \begin{proposition}[Confidence thresholds]\label{prop:threshold}
-Let $\ee_{\rm g}$ be constant, and fix $\pi^-_t$, $\hat X(t)$, $g$ and $\lambda(t)$.
+Fix $\pi^-_t$, $\hat X(t)$, $g$ and $\lambda(t)$, and let $I$ be an interval of confidences on which $\ee_{\rm g}(c)$ is constant, such as one bin of the estimate used in Section~\ref{sec:results}. For $c\in I$:
 \begin{enumerate}
 \item[(a)] If $d(t)=1$, there are thresholds $c_{\rm r}\le c_{\lab}$ such that~\eqref{eq:rule} stays silent for $c<c_{\rm r}$, uploads the frame for $c_{\rm r}\le c<c_{\lab}$, and sends the label for $c\ge c_{\lab}$. Any of the three intervals may be empty.
 \item[(b)] If $d(t)=0$, it uploads the frame if and only if $c\le c^0_{\rm r}$ for some threshold $c^0_{\rm r}$, and stays silent otherwise.
@@ -488,7 +488,7 @@ Let $\ee_{\rm g}$ be constant, and fix $\pi^-_t$, $\hat X(t)$, $g$ and $\lambda(
 \end{enumerate}
 \end{proposition}
 
-The proof is in Appendix~\ref{app:threshold}. Part (a) is the rule of the title. A frame that disagrees with the GS is sent as a label when the UAV is sure of it, sent to the ground when the UAV is unsure, and withheld when it is too unsure for either to pay off. Part (b) says that a frame that agrees with the GS can still be worth uploading, but only if it is unsure: an unsure agreement leaves room for the GS to be wrong, and the ground classifier can check. Part (c) says that the UAV becomes more willing to act the longer the GS has probably been wrong, and less willing as energy becomes more expensive.
+The proof is in Appendix~\ref{app:threshold}. Across bins the thresholds can shift where $\ee_{\rm g}(c)$ jumps, which causes the steps in Fig.~\ref{fig:regions}. Part (a) is the rule of the title. A frame that disagrees with the GS is sent as a label when the UAV is sure of it, sent to the ground when the UAV is unsure, and withheld when it is too unsure for either to pay off. Part (b) says that a frame that agrees with the GS can still be worth uploading, but only if it is unsure: an unsure agreement leaves room for the GS to be wrong, and the ground classifier can check. Part (c) says that the UAV becomes more willing to act the longer the GS has probably been wrong, and less willing as energy becomes more expensive.
 
 \setcounter{example}{0}
 \begin{example}[continued]
@@ -565,18 +565,20 @@ Consequently, $\frac1T\sum_{t<T}E_{a(t)}(g(t))\le\bar E+Z_{\max}/T$ for every $T
 
 The proof is in Appendix~\ref{app:budget}. A gain never exceeds $\Delta_{\max}+1$, so once $Z(t)E_a(g)$ exceeds $V(\Delta_{\max}+1)$ for every transmission, the UAV stays silent and the debt drains. The bound~\eqref{eq:Zmax} is loose; it shows that the budget is met by construction, and Section~\ref{sec:results} shows how close the spent energy stays to the budget in practice.
 
+What is proved and what is not should be kept apart. Theorem~\ref{thm:budget} is a guarantee on the energy, valid on every sample path. For the AoII, CA-DPP is a principled heuristic: it minimizes the next-slot AoII plus the priced energy, and we have no bound on its gap to the optimum of (P) (Remark~\ref{rem:opt}). Its AoII is therefore assessed on data in Section~\ref{sec:results}.
+
 \subsection{Complexity and Parameters}
 A slot of CA-DPP costs $O(\Delta_{\max})$ operations, linear in the length of the belief vector. The memory is the belief vector, $\Delta_{\max}+1$ numbers, plus small tables of $\ee_{\rm g}(c)$, $q_a(g)$ and $E_a(g)$.
 
-CA-DPP has two parameters. The weight $V$ trades the AoII against the size of the energy debt: a larger $V$ lowers the AoII but lets the debt grow larger before it brakes the UAV, so the energy spent over a finite mission exceeds the budget by more (Section~\ref{sec:results}). The exponent $\nu$ sets how much each frame moves the belief. Both are chosen on tuning data before the mission. The statistics that CA-DPP uses, namely $p_0$, $p_1$, $\varpi$ and $\ee_{\rm g}(c)$, are estimated on the same data.
+CA-DPP has two parameters, chosen on tuning data before the mission together with the statistics $p_0$, $p_1$, $\varpi$ and $\ee_{\rm g}(c)$. The weight $V$ trades the AoII against the energy debt: a larger $V$ lowers the AoII but lets the debt grow larger, so a finite mission overspends more. The exponent $\nu$ sets how much each frame moves the belief.
 
 \subsection{Extensions and Performance}
 \begin{remark}[Harvesting battery]\label{rem:harvest}
-Suppose the UAV, or a ground sensor that runs the same policy, harvests energy into a battery of finite capacity, and let $B(t)$ be the energy stored in slot $t$. The constraint is then that the battery never runs empty, instead of~\eqref{eq:budget}. The perturbed Lyapunov method of~\cite{huang2013eh} applies the same derivation to the battery, shifted by a constant $\theta$, and yields~\eqref{eq:rule} with $\lambda(t)=\theta-B(t)$: energy becomes expensive when the battery is low. By the argument behind Theorem~\ref{thm:budget}, choosing $\theta\ge E_{\max}+V(\Delta_{\max}+1)/E_{\min}$ ensures that the UAV never chooses an action that the battery cannot pay for.
+If the UAV, or a ground sensor running the same policy, harvests energy into a finite battery with content $B(t)$, the constraint becomes that the battery never runs empty. The perturbed Lyapunov method of~\cite{huang2013eh} applies the same derivation to the battery, shifted by a constant $\theta$, and yields~\eqref{eq:rule} with $\lambda(t)=\theta-B(t)$: energy becomes expensive when the battery is low. By the argument behind Theorem~\ref{thm:budget}, choosing $\theta\ge E_{\max}+V(\Delta_{\max}+1)/E_{\min}$ ensures that the UAV never chooses an action that the battery cannot pay for.
 \end{remark}
 
 \begin{remark}[Optimality]\label{rem:opt}
-For problems in which the per-slot cost depends only on the current state and action, drift-plus-penalty comes within $O(1/V)$ of the optimal cost~\cite{neely2010book}. This bound does not apply here, because the AoII depends on past decisions through the GS status, and CA-DPP minimizes only the AoII of the next slot. A version that applies~\eqref{eq:rule} between deliveries, instead of in every slot, fits the renewal framework of~\cite{neely2013renewal}, in which each delivery starts a new frame. Deriving a performance bound for that version is left to future work. Section~\ref{sec:results} compares CA-DPP with a genie that knows the state, which indicates how much room for improvement remains.
+For problems in which the per-slot cost depends only on the current state and action, drift-plus-penalty comes within $O(1/V)$ of the optimal cost~\cite{neely2010book}. This bound does not apply here, because the AoII depends on past decisions through the GS status. A version that applies~\eqref{eq:rule} between deliveries fits the renewal framework of~\cite{neely2013renewal}, in which each delivery starts a new frame; its bound is left to future work. The genie of Section~\ref{sec:results} indicates the remaining room for improvement.
 \end{remark}
 %% =====================================================================
 \section{Trace-Driven Evaluation}\label{sec:results}
