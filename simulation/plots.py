@@ -12,7 +12,7 @@ def tag(ax, s, note=None):
     ax.set_title(s + (' ' + note if note else ''), loc='center', fontsize=7.5, pad=3)
 from matplotlib.lines import Line2D
 BLANK = Line2D([], [], color='none', label=' ')
-def ordered_legend(fig, ax0, extra=None, y=1.17):
+def ordered_legend(fig, ax0, extra=None, y=1.25):
     hs, ls = ax0.get_legend_handles_labels(); H = dict(zip(ls, hs))
     names = [POL[p][0] for p in ['cadpp', 'cadpp_blind', 'cadpp_label']]
     base = [POL[p][0] for p in ['zakeri', 'gan', 'pehl', 'basn']]
@@ -32,7 +32,7 @@ def budget_ticks(a_):
 
 # ---------------- Fig. 3: budget ----------------
 b = json.load(open(f'{R}/budget.json')); Bs = sorted(b, key=float); x = [float(v)*1e3 for v in Bs]
-fig, ax = plt.subplots(1, 3, figsize=(PAGE_W, 1.3))
+fig, ax = plt.subplots(1, 3, figsize=(PAGE_W, 1.22))
 for pol in ALL: errline(ax[0], x, [b[v][pol] for v in Bs], pol)
 ax[0].axhline(b[Bs[-1]]['oracle']['aoii'], color='k', ls=':', lw=0.9, label='Genie (knows $X$; %.2f mJ/slot)' % (1e3*b[Bs[-1]]['oracle']['energy']))
 ax[0].set(xscale='log', yscale='log', ylabel='average AoII (slots)')
@@ -52,7 +52,7 @@ fig.tight_layout(w_pad=1.8, rect=(0, 0.045, 1, 1))
 fig.text(0.5, 0.0, r'energy budget $\bar E$ (mJ/slot)', ha='center', va='bottom', fontsize=8); fig.savefig(FIG+'fig_budget.pdf'); 
 
 # ---------------- Fig. 4: sensitivity ----------------
-fig, ax = plt.subplots(1, 3, figsize=(PAGE_W, 1.42), sharey=True)
+fig, ax = plt.subplots(1, 3, figsize=(PAGE_W, 1.32), sharey=True)
 a = json.load(open(f'{R}/acc.json')); ks = ['on8', 'n2', 'n4', 'n6', 'n8']
 ACC = json.load(open(f'{R}/acc_values.json')) if False else None
 import numpy as _np
@@ -69,7 +69,7 @@ ax[2].set(xscale='log', yscale='log', xlabel='raw frame size $L_2$ (kB)')
 ax[2].set_xticks([12.5, 25, 50, 100, 200]); ax[2].set_xticklabels(['12.5', '25', '50', '100', '200']); ax[2].minorticks_off()
 for a_, t, nt in zip(ax, '(a) (b) (c)'.split(), [r'weaker on-board model, $\bar E=0.5$ mJ/slot', r'blockage, $\bar E=0.5$ mJ/slot', r'frame size, $\bar E=2$ mJ/slot']): tag(a_, t, nt)
 ax[0].set_ylim(0.25, 25); log_yticks(ax[0], [0.5, 1, 2, 5, 10, 20])
-ordered_legend(fig, ax[0], y=1.18)
+ordered_legend(fig, ax[0], y=1.27)
 fig.tight_layout(w_pad=0.8); fig.savefig(FIG+'fig_sensitivity.pdf'); 
 
 # ---------------- Fig. 5: V trade-off and action mix ----------------

@@ -4,6 +4,8 @@
 \usetikzlibrary{arrows.meta,calc}
 \definecolor{lab}{HTML}{0072B2}\definecolor{raw}{HTML}{E69F00}\definecolor{sil}{HTML}{777777}
 \definecolor{water}{HTML}{56B4E9}\definecolor{dry}{HTML}{D9C79A}\definecolor{verm}{HTML}{D55E00}
+% small labels at 6 pt so they stay legible at column width
+\renewcommand{\tiny}{\fontsize{6}{7}\selectfont}
 \begin{document}
 \begin{tikzpicture}[font=\scriptsize, >={Stealth[length=1.7mm]}]
 % ---------------- ground patches ----------------
@@ -30,12 +32,12 @@
 % footprint
 \fill[verm!15] ($(uav)+(0,-0.14)$) -- (3*\pw,0.35) -- (4*\pw-0.04,0.35) -- cycle;
 \draw[verm, thin] ($(uav)+(0,-0.14)$) -- (3*\pw,0.35) ($(uav)+(0,-0.14)$) -- (4*\pw-0.04,0.35);
-\node[font=\tiny, text=verm, align=right, anchor=east] at (2.15,0.8) {photo $Y(t)$\\of patch $X(t)$};
+\node[font=\tiny, text=verm, align=right, anchor=east] at (2.15,0.74) {photo $Y(t)$\\of patch $X(t)$};
 % on-board classifier callout
 \node[draw=black!55, fill=white, rounded corners=1.5pt, align=left, inner sep=2pt, font=\tiny, anchor=north west] (cls) at (0.0,3.05)
   {\textbf{On-board classifier}\\label $\ell(t)$: flooded\\confidence $c(t)=0.9$};
 \draw[black!55] (cls.east) -- ($(uav)+(-0.2,0.15)$);
-\node[font=\tiny, text=sil, anchor=east] at (2.05,1.3) {silent: no packet};
+\node[font=\tiny, text=sil, anchor=east] at (2.05,1.25) {silent: no packet};
 % ---------------- obstacle ----------------
 \fill[black!30] (5.35,0) rectangle ++(0.3,0.62); \fill[black!30] (5.7,0) rectangle ++(0.22,0.4);
 \node[font=\tiny, anchor=north] at (5.63,-0.02) {blockage $\beta(t)$};

@@ -132,7 +132,7 @@ The GS has no sensor of its own. Everything it knows about the patch below the U
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/fig_scenario.pdf}
-\caption{The scenario. A UAV flies over a disaster area (flooding in this example), photographs the patch below it and labels the photo on board with a confidence. In each slot it stays silent, sends its label (blue), or sends the photo to the ground classifier (orange). The GS status is the last label received, and the GS acknowledges each packet it decodes. Buildings can block the link, and the cost of a photo grows with the distance. Inset: the AoII grows by one per slot while the GS status is wrong and returns to zero when a delivered label or a change of the scene makes it right.}
+\caption{The scenario. A UAV flies over a disaster area (flooding in this example), photographs the patch below it and labels the photo on board with a confidence. In each slot it stays silent, sends its label (blue), or sends the photo to the ground classifier (orange). The GS status is the last label received, and the GS acknowledges each packet it decodes. Buildings can block the link, and the cost of a photo grows with the distance. Inset: the AoII grows by one per slot while the GS status is wrong and returns to zero when a delivered label or a change of the scene makes it right. Sizes, energies and distances are example values from the scenario of Section~\ref{sec:results}.}
 \label{fig:system}
 \end{figure}
 
@@ -166,7 +166,7 @@ Value of an action; its energy price & $G_a$; $Z(t)$, $V$ & Secs.~\ref{sec:struc
 \subsection{Event Dynamics}\label{sec:src}
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.7\columnwidth]{figures/fig_markov.pdf}
+\includegraphics[width=0.85\columnwidth]{figures/fig_markov.pdf}
 \caption{Markov chain of the patch state $X(t)$. In each slot a dry patch ($0$) is followed by a flooded one with probability $p_0$, and a flooded patch ($1$) by a dry one with probability $p_1$.}
 \label{fig:markov}
 \end{figure}
@@ -733,7 +733,7 @@ The main weakness of CA-DPP at large budgets is Assumption~\ref{as:inf}(ii): the
 Nothing in the model is specific to UAVs or floods. The link and energy models apply to any device whose channel varies predictably, such as a satellite in low Earth orbit that sees a ground station only during passes; there, the renewal formulation of Remark~\ref{rem:opt} could spend more just before a predictable outage. A non-binary scene, such as a land-cover class, needs a belief over the AoII and the current class, but the gains keep their structure: an update removes AoII if it is right and creates AoII if it is wrong.
 
 \subsection{Limitations}
-Five limitations remain. First, the policy minimizes the AoII of the next slot only, and we have no bound on its gap to the optimal policy of (P). Second, the threshold structure of Proposition~\ref{prop:threshold} is proved for the per-slot rule~\eqref{eq:rule} with a constant ground error; whether the optimal policy of (P) shares it is open. Third, Sentinel-2 imagery is a proxy for UAV frames, which UAV datasets such as FLAME~\cite{shamsoshoara2021flame} and AIDER~\cite{kyrkou2020aider} would replace. Fourth, the energy model is analytic, not measured. Fifth, the imagery is not tied to the UAV position, so revisits and route planning are left out.
+Five limitations remain. First, the policy minimizes the AoII of the next slot only, and we have no bound on its gap to the optimal policy of (P). Second, the threshold structure of Proposition~\ref{prop:threshold} is proved for the per-slot rule~\eqref{eq:rule} within each confidence bin of the ground error; whether the optimal policy of (P) shares it is open. Third, Sentinel-2 imagery is a proxy for UAV frames, which UAV datasets such as FLAME~\cite{shamsoshoara2021flame} and AIDER~\cite{kyrkou2020aider} would replace. Fourth, the energy model is analytic, not measured. Fifth, the imagery is not tied to the UAV position, so revisits and route planning are left out.
 
 %% =====================================================================
 \section{Conclusion}\label{sec:concl}
