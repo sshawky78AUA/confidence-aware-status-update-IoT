@@ -7,7 +7,7 @@ Everything needed to regenerate the results, figures and tables of both papers, 
 ```bash
 cd simulation
 pip install -r requirements.txt
-./run_all.sh              # uses the included traces; about 1 hour on 4 cores
+./run_all.sh              # uses the included traces; about 75 minutes on 4 cores
 ./run_all.sh --traces     # also rebuilds the traces from raw data first (downloads ~1 GB)
 ```
 
@@ -36,7 +36,9 @@ New outputs go to `results_new/` and `figures_new/` (change with `RES=... FIG=..
 
 ## Shipped results
 
-`results/` holds the JSON files behind the figures and table in the papers. Running `plots.py results`, `table.py results`, `regions.py 0.25`, `fig_inference.py` and `fig_path.py` on them reproduces the paper figures pixel for pixel and `table_results.tex` exactly.
+`results/` holds the JSON files behind the figures and table in the papers. Running `plots.py results`, `table.py results`, `regions.py 0.25`, `fig_inference.py` and `fig_path.py` on them reproduces the paper figures pixel for pixel and the results table exactly.
+
+Verified on 2026-11-25 (Python 3.13, the versions in `requirements.txt`): rebuilding the traces from the raw data gives a file identical to `traces_sen1floods11.npz`, and a full rerun of `experiments.py` (74 minutes on 4 cores) gives JSON files identical to `results/`.
 
 ## Earlier versions
 

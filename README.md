@@ -27,6 +27,6 @@ To reproduce the results, see [`simulation/README.md`](simulation/README.md). In
 ```bash
 cd simulation
 pip install -r requirements.txt
-./run_all.sh            # from the included inference traces, about 1 hour on 4 cores
+./run_all.sh            # from the included inference traces, about 75 minutes on 4 cores
 ./run_all.sh --traces   # from the raw Sen1Floods11 data (downloads about 1 GB)
 ```

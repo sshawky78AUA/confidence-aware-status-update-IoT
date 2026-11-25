@@ -9,7 +9,7 @@ if [[ "${1:-}" == "--traces" ]]; then
   ./download_sen1floods11.sh data
   python3 prep_sen1floods11.py data traces_sen1floods11.npz      # step 1: classifiers + inference traces
 fi
-python3 experiments.py "$RES"                                     # step 2: all experiments (about 1 h on 4 cores)
+python3 experiments.py "$RES"                                     # step 2: all experiments (about 75 min on 4 cores)
 python3 plots.py "$RES" "$FIG"                                    # step 3: Figs. budget, sensitivity, V/mix
 python3 table.py "$RES" "$FIG/table_results.tex"                  #         results table
 python3 regions.py 0.25 "$FIG"                                    #         decision-regions figure
