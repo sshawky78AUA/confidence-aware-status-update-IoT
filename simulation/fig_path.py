@@ -14,12 +14,13 @@ for act, m, col, lab in ((1, 'v', OI['blue'], 'label sent'), (2, 'D', OI['orange
     sel = a == act
     ax[0].plot(t[sel], np.full(sel.sum(), 1.12), m, color=col, ms=3.2, mfc=col, label=lab)
 ax[0].set_ylim(-0.05, 1.25); ax[0].set_yticks([0, 1]); ax[0].set_yticklabels(['dry', 'flooded']); 
-ax[0].set_title('(a)', loc='left', fontweight='bold', pad=3, fontsize=8); ax[0].set_ylim(-0.08, 1.22)
+ax[0].set_title('(a) true state, GS status and transmissions', loc='center', pad=3, fontsize=7.5); ax[0].set_ylim(-0.08, 1.22)
 ax[1].step(t, L['D'][w], where='mid', color=OI['blue'], lw=0.9, label='AoII $\\Delta(t)$ (left)')
 ax[1].set_ylabel('AoII (slots)'); ax2 = ax[1].twinx(); ax2.grid(False)
-ax2.plot(t, L['mu'][w], color=OI['verm'], lw=0.9, ls='--', label='belief $\\mu_t$ (right)'); ax2.set_ylim(0, 1); ax2.set_ylabel('$\\mu_t$ = P(GS wrong)')
+ax2.plot(t, L['mu'][w], color=OI['verm'], lw=0.9, ls='--', label='belief $\\mu_t$ (right)'); ax2.set_ylim(0, 1); ax2.set_ylabel('belief $\\mu_t$')
 h1, l1 = ax[1].get_legend_handles_labels(); h2, l2 = ax2.get_legend_handles_labels(); ax[1].legend(h1+h2, l1+l2, fontsize=6.2, loc='upper left', bbox_to_anchor=(0.06, 1.0))
-ax[1].set_xlabel('slot'); ax[1].set_title('(b)', loc='left', fontweight='bold', pad=3, fontsize=8)
+ax[1].set_xlabel('slot'); ax[1].set_title(r'(b) AoII and belief $\mu_t$', loc='center', pad=3, fontsize=7.5)
+from matplotlib.ticker import MaxNLocator; ax[1].yaxis.set_major_locator(MaxNLocator(integer=True, nbins=5))
 print('labels', (a == 1).sum(), 'raw', (a == 2).sum(), 'delivered', ok.sum(), 'dist', L['dist'][w].min(), L['dist'][w].max(), 'blocked', L['blocked'][w].sum())
 h0, l0 = ax[0].get_legend_handles_labels(); fig.legend(h0, l0, ncol=4, fontsize=6.2, loc='upper center', bbox_to_anchor=(0.5, 1.07), handlelength=1.2, columnspacing=0.8)
-fig.tight_layout(h_pad=0.3); fig.savefig(sys.argv[1])
+fig.tight_layout(h_pad=0.9); fig.savefig(sys.argv[1])
