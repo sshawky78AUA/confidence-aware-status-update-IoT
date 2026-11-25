@@ -147,7 +147,7 @@ Meaning & Symbol & Defined in\\
 Patch below the UAV: event or not & $X(t)$ & \eqref{eq:source}\\
 How often the scene changes & $p_0,p_1$; $\varpi$ & \eqref{eq:source}, \eqref{eq:stationary}\\
 Photo; on-board label, confidence & $Y(t)$; $\lab(t)$, $c(t)$ & \eqref{eq:calib}\\
-Label disagrees with the GS status & $d(t)$ & Sec.~\ref{sec:belief}\\
+Label disagrees with the GS status & $d(t)$ & Sec.~\ref{sec:update}\\
 Label from the ground classifier & $\lab^{\rm g}(t)$, $\ee_{\rm g}(c)$ & Assum.~\ref{as:inf}\\
 Silent, send label, send photo & $a(t)\in\{0,1,2\}$ & Sec.~\ref{sec:act}\\
 UAV position, blockage & $g(t)$ & \eqref{eq:block}, \eqref{eq:pl}\\
@@ -195,7 +195,7 @@ Averaging~\eqref{eq:calib} over the two label values shows that a label with con
 
 Modern classifiers are often overconfident, so~\eqref{eq:calib} does not hold out of the box. Post-hoc calibration~\cite{guo2017calibration}, such as isotonic regression on held-out data, restores it to a good approximation. Fig.~\ref{fig:inference}(a) shows that our on-board model, calibrated in this way, has an expected calibration error of $1.4\%$ on the test chips. Fig.~\ref{fig:inference}(b) confirms the consequence above: the measured error rate of the on-board label follows $1-c$ closely across confidence bins.
 
-The belief update in Section~\ref{sec:belief} needs the likelihood of a frame under each state, that is, how much more probable the observed pair $(\lab(t),c(t))$ is if $X(t)=1$ than if $X(t)=0$. Calibration gives the posterior probability of each state, not the likelihood. By~\eqref{eq:calib}, the posterior probability of state $x\in\{0,1\}$ is
+The belief update in Section~\ref{sec:update} needs the likelihood of a frame under each state, that is, how much more probable the observed pair $(\lab(t),c(t))$ is if $X(t)=1$ than if $X(t)=0$. Calibration gives the posterior probability of each state, not the likelihood. By~\eqref{eq:calib}, the posterior probability of state $x\in\{0,1\}$ is
 \begin{equation}\label{eq:cx}
 c_x(t)=\Prob\big\{X(t)=x\mid\lab(t),c(t)\big\}=\begin{cases}c(t), & x=\lab(t),\\ 1-c(t), & x\neq\lab(t).\end{cases}
 \end{equation}
@@ -220,7 +220,7 @@ We collect these modeling choices in an assumption. It is used only to design th
 (i) The on-board classifier is calibrated, i.e.,~\eqref{eq:calib} holds. (ii) Given the source path, the on-board outputs $(\lab(t),c(t))$ are independent across slots. (iii) Given $X(t)$ and $c(t)=c$, the ground label is wrong with probability $\ee_{\rm g}(c)<\tfrac12$, independently of $\lab(t)$ and of the past.
 \end{assumption}
 
-Part (ii) is the strongest of the three. Consecutive footprints overlap by half, so a feature that fools the classifier in one frame tends to fool it in the next. Fig.~\ref{fig:inference}(c) shows such runs of errors. Over the validation and test chips, the on-board label is wrong in $8.2\%$ of the slots, but in $56\%$ of the slots that follow a wrong label, and a run of errors lasts $2.2$ slots on average. We keep part (ii) because it yields a tractable belief update, and we correct for its optimism in Section~\ref{sec:belief}. Assumption~\ref{as:inf} generalizes the classification-noise model of Tiny-SEM~\cite{hosny2026tinysem}, in which the error rate is fixed by the chosen model.
+Part (ii) is the strongest of the three. Consecutive footprints overlap by half, so a feature that fools the classifier in one frame tends to fool it in the next. Fig.~\ref{fig:inference}(c) shows such runs of errors. Over the validation and test chips, the on-board label is wrong in $8.2\%$ of the slots, but in $56\%$ of the slots that follow a wrong label, and a run of errors lasts $2.2$ slots on average. We keep part (ii) because it yields a tractable belief update, and we correct for its optimism in Section~\ref{sec:update}. Assumption~\ref{as:inf} generalizes the classification-noise model of Tiny-SEM~\cite{hosny2026tinysem}, in which the error rate is fixed by the chosen model.
 
 \subsection{Actions and Channel}\label{sec:act}
 At the start of slot $t$, after classifying the frame, the UAV chooses an action $a(t)\in\A=\{0,1,2\}$. It stays silent ($a=0$), which costs nothing and leaves the GS status unchanged. It sends its label in a packet of $L_1$ bits ($a=1$), which corrects a wrong GS status if the label is right but makes a correct status wrong if the label is wrong. Or it uploads the frame in a packet of $L_2\gg L_1$ bits ($a=2$), so that the ground classifier labels it. In our scenario a label packet has $32$ bytes and a frame $50$ kilobytes. Whether a packet arrives, and how much energy it costs, depends on the link, which we model next.
@@ -262,7 +262,7 @@ and $E_0=0$. Here $P_{\rm r}$ is the power drawn by the radio and $E_{\rm o}$ is
 \begin{equation}\label{eq:budget}
 \limsup_{T\to\infty}\frac1T\sum_{t=0}^{T-1}\E\Big[E_{a(t)}\big(g(t)\big)\Big]\le\bar E.
 \end{equation}
-The expectation is over the action and the link state, which are random: they depend on the scene, the classifier outputs, the blockage and the past deliveries. Since $E_a(g)$ already averages over the fading, \eqref{eq:budget} limits the long-run average energy that the radio draws, up to the approximation error of~\eqref{eq:energy}. The $\limsup$ is needed because the running average need not converge for every policy. An average budget allows the UAV to spend more in some parts of the mission, for example near the GS where uploads are cheap, and less in others.
+Here $E_{a(t)}(g(t))$ is~\eqref{eq:energy} evaluated at the action and link state of slot $t$, which are random: they depend on the scene, the classifier outputs, the blockage and past deliveries. Up to the approximation in~\eqref{eq:energy}, \eqref{eq:budget} limits the long-run average energy that the radio draws. The $\limsup$ is needed because the running average need not converge for every policy. An average budget allows the UAV to spend more in some parts of the mission, for example near the GS where uploads are cheap, and less in others.
 
 \subsection{The GS Status and the AoII}
 Let $o(t)\in\{0,1\}$ indicate that the packet sent in slot $t$ is decoded, so $\Prob\{o(t)=1\mid a(t)=a,g(t)=g\}=q_a(g)$. The GS status, which we denote by $\hat X(t)$, is the most recent label the GS has received, whether it came from the UAV or from the ground classifier:
@@ -330,7 +330,7 @@ where $\E^{\psi}$ is the expectation when the actions follow $\psi$, so that $\b
 Three features make (P) hard. First, it is partially observed: the cost $\Delta(t)$ depends on $X(t)$, which the UAV never sees, so the policy must act on its own inference about the state. Second, the cost has memory: by~\eqref{eq:aoii}, a wrong GS status adds to the AoII in every slot until it is corrected, so an action affects the cost of all the following slots, not only of the next one. Third, the energy constraint couples all slots: energy spent now is not available later, so the value of an update depends on the updates that the budget will allow in the future. The rest of this section deals with the first feature by replacing the unknown AoII with a probability distribution over its values, which turns (P) into a problem on a state that the UAV knows. Our policy handles the other two features approximately: Section~\ref{sec:structure} values each action by its effect on the AoII of the next slot, and Section~\ref{sec:lyap} enforces the budget online with a virtual queue that prices energy according to what has already been spent.
 
 \subsection{A Belief on the AoII}\label{sec:belief}
-The information $\I(t)$ grows without bound. The following lemma shows that a much smaller object carries everything the UAV needs to predict the AoII.
+The information $\I(t)$ grows with $t$. The following lemma shows that a much smaller object carries everything the UAV needs to predict the AoII.
 
 \begin{lemma}[Sufficient statistic]\label{lem:suff}
 Given $\hat X(t)$, the AoII determines the state: $X(t)=\hat X(t)$ if $\Delta(t)=0$ and $X(t)=1-\hat X(t)$ if $\Delta(t)>0$. Hence the pair $(\hat X(t),\pi_t)$, where
@@ -340,14 +340,14 @@ Given $\hat X(t)$, the AoII determines the state: $X(t)=\hat X(t)$ if $\Delta(t)
 summarizes $\I(t)$ for predicting the future AoII.
 \end{lemma}
 \begin{proof}
-By~\eqref{eq:aoii}, $\Delta(t)>0$ if and only if $X(t)\neq\hat X(t)$, and $X(t)$ is binary. So $(\hat X(t),\Delta(t))$ determines $X(t)$, and the future of $X$, $\hat X$ and $\Delta$ depends on the past only through $X(t)$, $\hat X(t)$ and $\Delta(t)$.
+By~\eqref{eq:aoii}, $\Delta(t)>0$ iff $X(t)\neq\hat X(t)$, so $(\hat X(t),\Delta(t))$ determines the binary $X(t)$. Given $X(t)$, future states follow~\eqref{eq:source} and, by Assumption~\ref{as:inf}, future labels depend only on them, so the future AoII depends on $\I(t)$ only through $\hat X(t)$ and $\pi_t$.
 \end{proof}
 
-The belief $\pi_t$ thus answers both questions at once. Its mass at $\delta=0$ is the probability that the GS is correct, and its mass at $\delta>0$ says how long the GS has probably been wrong. For a given $\delta$, we write $x_\delta$ for the state implied by Lemma~\ref{lem:suff}, i.e., $x_0=\hat X(t)$ and $x_\delta=1-\hat X(t)$ for $\delta>0$.
+The mass of $\pi_t$ at $\delta=0$ is the probability that the GS is correct, and its mass at $\delta>0$ tells how long the GS has probably been wrong. For a given $\delta$, we write $x_\delta$ for the state implied by Lemma~\ref{lem:suff}, i.e., $x_0=\hat X(t)$ and $x_\delta=1-\hat X(t)$ for $\delta>0$.
 
-To store the belief with finite memory, we truncate its support at $\Delta_{\max}$ and keep any mass that would exceed $\Delta_{\max}$ at $\Delta_{\max}$. With $\Delta_{\max}=300$ the belief is a vector of $301$ numbers, about $1.2$\,kB in single precision. The mass at $\Delta_{\max}$ is negligible in all our experiments.
+To store the belief with finite memory, we truncate its support at $\Delta_{\max}$, adding all mass above $\Delta_{\max}$ to the mass at $\Delta_{\max}$. With $\Delta_{\max}=300$ the belief is $301$ numbers ($1.2$\,kB in single precision), and the mass at $\Delta_{\max}$ is negligible in all our experiments.
 
-\subsection{Belief Update}
+\subsection{Belief Update}\label{sec:update}
 The belief changes for three reasons in each slot: the UAV sees a new on-board label, it may receive a ground label, and the scene evolves. Let $\pi^-_t$ denote the belief at the start of slot $t$, before the new frame is classified. The update has three steps.
 
 \emph{Step 1: correction with the on-board label.} By Bayes' rule, the frame changes the belief in proportion to its likelihood under each value of the AoII:
@@ -723,7 +723,7 @@ The main weakness of CA-DPP at large budgets is Assumption~\ref{as:inf}(ii). The
 Nothing in the model is specific to UAVs or floods. The link model~\eqref{eq:succ} and the energy model~\eqref{eq:energy} apply to any device whose channel varies predictably, such as a satellite in low Earth orbit that sees a ground station only during passes, or a ground sensor that wakes up on a schedule. For a satellite, long outages are predictable, and a version that spends more just before an outage, through the renewal formulation of Remark~\ref{rem:opt}, would anticipate them. A non-binary scene, such as a land-cover class, requires a belief over the AoII and the current class, but the structure of the gains carries over: an update removes AoII when the GS is wrong and the update right, and creates AoII in the opposite case.
 
 \subsection{Limitations}
-Five limitations remain. First, the policy minimizes the AoII of the next slot only, and we have no bound on its gap to the optimal policy of (P). Second, the threshold structure of Proposition~\ref{prop:threshold} is proved for the per-slot rule~\eqref{eq:rule} with a constant ground error. Whether the optimal policy of (P) has the same structure is open. Third, the Sentinel-2 imagery is a proxy for UAV frames. UAV frames have higher resolution, a different viewing geometry and motion blur, which would change both classifiers. Repeating the study with UAV datasets such as FLAME~\cite{shamsoshoara2021flame} and AIDER~\cite{kyrkou2020aider} is the next step. Fourth, the energy model is analytic. Measuring the energy of inference and transmission on a microcontroller would test whether the label really costs a tenth of an upload in practice. Fifth, the photo sequence and the UAV position are generated separately, so the imagery is not tied to the location on the circle. A spatial model of the area, with correlated neighboring patches, revisits and a route chosen by the UAV, is left for future work.
+Five limitations remain. First, the policy minimizes the AoII of the next slot only, and we have no bound on its gap to the optimal policy of (P). Second, the threshold structure of Proposition~\ref{prop:threshold} is proved for the per-slot rule~\eqref{eq:rule} with a constant ground error. Whether the optimal policy of (P) has the same structure is open. Third, Sentinel-2 imagery is a proxy for UAV frames, which have higher resolution, a different viewing geometry and motion blur; UAV datasets such as FLAME~\cite{shamsoshoara2021flame} and AIDER~\cite{kyrkou2020aider} would test both classifiers. Fourth, the energy model is analytic. Measuring the energy of inference and transmission on a microcontroller would test whether the label really costs a tenth of an upload in practice. Fifth, the photo sequence and the UAV position are generated separately, so the imagery is not tied to the location on the circle. A spatial model of the area, with correlated neighboring patches, revisits and a route chosen by the UAV, is left for future work.
 
 %% =====================================================================
 \section{Conclusion}\label{sec:concl}

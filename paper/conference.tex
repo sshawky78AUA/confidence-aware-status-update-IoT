@@ -160,13 +160,13 @@ and the ground label of each decoded upload, but not $X(t)$ or $\Delta(t)$. A po
 
 \subsection{Belief on the AoII}\label{sec:belief}
 \begin{lemma}[Sufficient statistic]\label{lem:suff}
-Given $\hat X(t)$, $X(t)=\hat X(t)$ if $\Delta(t)=0$ and $X(t)=1-\hat X(t)$ otherwise. Hence $\hat X(t)$ and the belief $\pi_t(\delta)=\Prob\{\Delta(t)=\delta\mid\I(t)\}$ summarize $\I(t)$ for predicting future AoII.
+Given $\hat X(t)$, $X(t)=\hat X(t)$ if $\Delta(t)=0$ and $X(t)=1-\hat X(t)$ otherwise. Hence, under Assumption~\ref{as:inf}, $\hat X(t)$ and the belief $\pi_t(\delta)=\Prob\{\Delta(t)=\delta\mid\I(t)\}$ summarize $\I(t)$ for predicting future AoII.
 \end{lemma}
 \begin{proof}
-By~\eqref{eq:aoii}, $\Delta(t)>0$ iff $X(t)\neq\hat X(t)$, and $X(t)$ is binary.
+By~\eqref{eq:aoii}, $\Delta(t)>0$ iff $X(t)\neq\hat X(t)$, and $X(t)$ is binary; by Assumption~\ref{as:inf}, future observations depend only on future states.
 \end{proof}
 
-We truncate the support at $\Delta_{\max}$ and keep the mass that would exceed $\Delta_{\max}$ at $\Delta_{\max}$. Let $\pi^-_t$ be the belief before the new label is seen, $d(t)=\ind{\lab(t)\neq\hat X(t)}$, and $x_\delta$ the scene state implied by $\delta$ (Lemma~\ref{lem:suff}). The recursion has three steps.
+We truncate the support at $\Delta_{\max}$, adding all mass above $\Delta_{\max}$ to $\Delta_{\max}$. Let $\pi^-_t$ be the belief before the new label is seen, $d(t)=\ind{\lab(t)\neq\hat X(t)}$, and $x_\delta$ the scene state implied by $\delta$ (Lemma~\ref{lem:suff}). The recursion has three steps.
 
 \emph{Correction with the on-board label.} All $\delta>0$ imply the same state, so only the likelihood ratio $\Lambda_t$ of ``GS wrong'' to ``GS right'' matters. By (i), with $\xh=\hat X(t)$,
 \begin{equation}\label{eq:Lambda}
