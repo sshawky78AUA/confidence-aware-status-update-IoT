@@ -11,7 +11,7 @@ pip install -r requirements.txt
 ./run_all.sh --traces     # also rebuilds the traces from raw data first (downloads ~1 GB)
 ```
 
-New outputs go to `results_new/` and `figures_new/` (change with `RES=... FIG=... ./run_all.sh`), so the shipped results are never overwritten. Copy figures into `../journal/figures/` or `../conference/figures/` when you want the papers to use them.
+New outputs go to `results_new/` and `figures_new/` (change with `RES=... FIG=... ./run_all.sh`), so the shipped results are never overwritten. Copy figures into `../paper/figures/` (and paste the new table into the tables of `../paper/journal.tex` and `../paper/conference.tex`) when you want the papers to use them.
 
 ## Pipeline
 

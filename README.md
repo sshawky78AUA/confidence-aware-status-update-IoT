@@ -1,15 +1,26 @@
-# Direction 1: correctness-aware silent/label/raw updates for UAV sensing
+# Confidence-Aware Status Updates from On-Board Classifiers in Aerial IoT
 
-LaTeX sources for two versions of the paper by Sameh Hosny and John Tadrous.
+Paper sources and simulation code by Sameh Hosny and John Tadrous.
 
-| Folder | What it is | Main file |
-|---|---|---|
-| `journal/` | Journal master draft (IEEE Internet of Things Journal format) | `journal.tex` |
-| `conference/` | Conference version (IEEEtran conference, 7 pages) | `main.tex` |
-| `simulation/` | Full simulation pipeline: data preparation, simulator, experiments, figures and table | `run_all.sh` |
+| Folder | What it is |
+|---|---|
+| `paper/` | The LaTeX project, same layout as the Overleaf project |
+| `simulation/` | Full simulation pipeline: data preparation, simulator, experiments, figures and table |
+| `figure-sources/` | TikZ sources of the scenario and Markov-chain figures (standalone; compile to the PDFs in `paper/figures/`) |
 
-Each paper folder compiles on its own with `pdflatex` + `bibtex`, and each is also an Overleaf project.
-The `sim/` folder in each paper holds only the TikZ sources of the scenario figures.
+## Paper
+
+`paper/` holds two self-contained documents that share one `refs.bib` and one `figures/` folder:
+
+| File | Version |
+|---|---|
+| `journal.tex` | Journal master draft (IEEE Internet of Things Journal, double column) |
+| `conference.tex` | Conference version (IEEEtran conference, 7 pages), cut from the journal |
+
+Compile either with `pdflatex` + `bibtex` (in Overleaf, pick it as the main document).
+The simulation code and figure sources live only here on GitHub, not in Overleaf, since the papers only need the figure PDFs.
+
+## Simulation
 
 To reproduce the results, see [`simulation/README.md`](simulation/README.md). In short:
 
