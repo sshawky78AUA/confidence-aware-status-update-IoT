@@ -1,0 +1,19 @@
+# LaTeX build artifacts
+*.aux
+*.log
+*.blg
+*.bbl
+*.out
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.nav
+*.snm
+*.vrb
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+# OS
+.DS_Store

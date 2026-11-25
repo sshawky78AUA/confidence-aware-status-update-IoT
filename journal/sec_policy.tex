@@ -1,0 +1,75 @@
+%% =====================================================================
+\section{Online Policy: CA-DPP}\label{sec:lyap}
+%% =====================================================================
+The rule~\eqref{eq:rule} needs an energy price $\lambda(t)$. A fixed price would have to be tuned to the mission, and a wrong value either wastes the budget or leaves it unused. This section derives a price from the energy actually spent, using Lyapunov drift-plus-penalty~\cite{neely2010book}, and shows that the resulting policy meets the budget.
+
+\subsection{Energy Debt as a Virtual Queue}
+We track how far the UAV has spent beyond its budget with a virtual queue,
+\begin{equation}\label{eq:Z}
+Z(t+1)=\max\Big\{Z(t)+E_{a(t)}\big(g(t)\big)-\bar E,\ 0\Big\},\qquad Z(0)=0.
+\end{equation}
+In each slot the queue grows by the energy spent and drains by the budget, so $Z(t)$ is the energy debt of the UAV. Since $\max\{z,0\}\ge z$, summing~\eqref{eq:Z} over $t<T$ gives $Z(T)\ge\sum_{t<T}\big(E_{a(t)}(g(t))-\bar E\big)$, or
+\begin{equation}\label{eq:Zbound}
+\frac1T\sum_{t=0}^{T-1}E_{a(t)}\big(g(t)\big)\le\bar E+\frac{Z(T)}{T}.
+\end{equation}
+Hence the budget~\eqref{eq:budget} holds whenever the debt grows slower than linearly. The policy should therefore keep $Z(t)$ small while it keeps the AoII low.
+
+\subsection{Drift-Plus-Penalty}
+To keep the queue small, we measure its size by $L(t)=\frac12Z(t)^2$ and its expected growth in one slot by the drift $\E[L(t+1)-L(t)\mid\I(t)]$. Squaring~\eqref{eq:Z} and using $\max\{z,0\}^2\le z^2$,
+\[
+Z(t+1)^2\le Z(t)^2+\big(E_{a(t)}-\bar E\big)^2+2Z(t)\big(E_{a(t)}-\bar E\big).
+\]
+The middle term is at most $\max\{E_{\max},\bar E\}^2$, where $E_{\max}=\max_{a,g}E_a(g)$. Taking conditional expectations,
+\begin{equation}\label{eq:drift}
+\E\big[L(t+1)-L(t)\,|\,\I(t)\big]\le C+Z(t)\,\E\Big[E_{a(t)}\big(g(t)\big)-\bar E\,\big|\,\I(t)\Big],
+\end{equation}
+with $C=\frac12\max\{E_{\max},\bar E\}^2$. The drift-plus-penalty method chooses, in each slot, the action that minimizes the right-hand side of~\eqref{eq:drift} plus $V$ times the expected penalty, here the expected AoII of the next slot. By Lemma~\ref{lem:onestep}, this is
+\[
+\min_{a\in\A}\Big\{Z(t)E_a(g)+V\big(J_0-q_a(g)G_a\big)\Big\}.
+\]
+The terms $C$, $Z(t)\bar E$ and $VJ_0$ do not depend on the action, so the minimization is equivalent to~\eqref{eq:rule} with $\lambda(t)=Z(t)$. The energy price is thus the energy debt. When the UAV has spent more than its budget, energy becomes expensive and the silent regions of Proposition~\ref{prop:threshold}(c) grow. When it has spent less, the debt drains to zero and every useful update is sent.
+
+We call the resulting policy confidence-aware drift-plus-penalty (CA-DPP). Algorithm~\ref{alg:dpp} lists its steps.
+
+\begin{algorithm}[t]
+\caption{CA-DPP, executed by the UAV in slot $t$}\label{alg:dpp}
+\begin{algorithmic}[1]
+\State Classify $Y(t)$ to get $\lab(t)$, $c(t)$; observe $g(t)$; set $d(t)$
+\State Correct $\pi^-_t\to\pi_t$ by~\eqref{eq:post}; compute $\mu_t$, $S_t$
+\State Compute $G_1$, $G_2$ by~\eqref{eq:G1}--\eqref{eq:G2}
+\If{$q_1(g(t))=0$} $a(t)\gets0$
+\Else\ $a(t)\gets\arg\max_a\{Vq_a(g)G_a-Z(t)E_a(g)\}$, ties to silence
+\EndIf
+\State Transmit; read the acknowledgment: $\hat X(t+1)$, and $\lab^{\rm g}(t)$ after a decoded raw upload
+\State If a ground label arrived, correct $\pi_t$ with it (Step 2)
+\State Predict $\pi^-_{t+1}$ by~\eqref{eq:pred}
+\State $Z(t+1)\gets\max\big\{Z(t)+E_{a(t)}(g(t))-\bar E,0\big\}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Energy Guarantee}
+The next theorem shows that CA-DPP keeps the energy debt bounded on every sample path, so it meets the budget without any knowledge of the statistics of the scene, the classifier or the link.
+
+\begin{theorem}[Budget]\label{thm:budget}
+Let $E_{\min}=\min_{a\neq0,g}E_a(g)>0$. Under CA-DPP, for every sample path and every $t$,
+\begin{equation}\label{eq:Zmax}
+Z(t)\le Z_{\max}=\frac{V(\Delta_{\max}+1)}{E_{\min}}+E_{\max}.
+\end{equation}
+Consequently, $\frac1T\sum_{t<T}E_{a(t)}(g(t))\le\bar E+Z_{\max}/T$ for every $T$, and~\eqref{eq:budget} holds.
+\end{theorem}
+
+The proof is in Appendix~\ref{app:budget}. A gain never exceeds $\Delta_{\max}+1$, so once $Z(t)E_a(g)$ exceeds $V(\Delta_{\max}+1)$ for every transmission, the UAV stays silent and the debt drains. The bound~\eqref{eq:Zmax} is loose; it shows that the budget is met by construction, while in our experiments the energy spent stays within $5\%$ of the budget.
+
+\subsection{Complexity and Parameters}
+A slot of CA-DPP costs $O(\Delta_{\max})$ operations, a few hundred multiply-adds for $\Delta_{\max}=300$, which is less than one inference of the on-board classifier. The memory is the belief vector, about $1.2$\,kB, plus small tables of $\ee_{\rm g}(c)$, $q_a(g)$ and $E_a(g)$.
+
+CA-DPP has two parameters. The weight $V$ trades the AoII against the size of the energy debt: a larger $V$ lowers the AoII but lets the debt grow larger before it brakes the UAV, so the energy spent over a finite mission exceeds the budget by more (Section~\ref{sec:results}). The exponent $\nu$ sets how much each frame moves the belief. Both are chosen on tuning data before the mission. The statistics that CA-DPP uses, namely $p_0$, $p_1$, $\varpi$ and $\ee_{\rm g}(c)$, are estimated on the same data.
+
+\subsection{Extensions and Performance}
+\begin{remark}[Harvesting battery]\label{rem:harvest}
+Suppose the UAV, or a ground sensor that runs the same policy, harvests energy into a battery of finite capacity, and let $B(t)$ be the energy stored in slot $t$. The constraint is then that the battery never runs empty, instead of~\eqref{eq:budget}. The perturbed Lyapunov method of~\cite{huang2013eh} applies the same derivation to the battery, shifted by a constant $\theta$, and yields~\eqref{eq:rule} with $\lambda(t)=\theta-B(t)$: energy becomes expensive when the battery is low. By the argument behind Theorem~\ref{thm:budget}, choosing $\theta\ge E_{\max}+V(\Delta_{\max}+1)/E_{\min}$ ensures that the UAV never chooses an action that the battery cannot pay for.
+\end{remark}
+
+\begin{remark}[Optimality]\label{rem:opt}
+For problems in which the per-slot cost depends only on the current state and action, drift-plus-penalty comes within $O(1/V)$ of the optimal cost~\cite{neely2010book}. This bound does not apply here, because the AoII depends on past decisions through the GS status, and CA-DPP minimizes only the AoII of the next slot. A version that applies~\eqref{eq:rule} between deliveries, instead of in every slot, fits the renewal framework of~\cite{neely2013renewal}, in which each delivery starts a new frame. Deriving a performance bound for that version is left to future work. Section~\ref{sec:results} compares CA-DPP with a genie that knows the state, which indicates how much room for improvement remains.
+\end{remark}

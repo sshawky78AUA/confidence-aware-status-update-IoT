@@ -1,0 +1,46 @@
+%% =====================================================================
+\section{Related Work}\label{sec:related}
+%% =====================================================================
+This work draws on three lines of research: AoII and its optimization, freshness metrics for systems in which the transmitted content is an inference, and the offloading of inference from IoT devices and UAVs. We review each line and then summarize how our work differs.
+
+\subsection{Age of Incorrect Information}
+The AoI measures the time since the latest received update was generated. It treats every update as correct, so it cannot tell a receiver with a fresh wrong estimate from one with a fresh correct estimate. Maatouk et al.~\cite{maatouk2020aoii} introduced the AoII to fix this. The AoII is zero while the receiver's estimate equals the source state and grows with time while the two differ. For a Markov source observed perfectly by the transmitter, they showed that the optimal policy transmits only when the estimate is wrong.
+
+Two recent works add energy constraints. Zakeri et al.~\cite{zakeri2023aoiieh} study an energy-harvesting sensor that decides when to sample and when to transmit. Since the sensor does not see the source between samples, they formulate a POMDP whose belief is about the source state, and they derive threshold policies on the AoII. Ngo et al.~\cite{ngo2025eh} study the age and the correctness of updates from many energy-harvesting devices that share a random-access channel. In both works, a sample reveals the source state without error. Our UAV, in contrast, never observes the state. Its only observation is a classifier output that may be wrong, and the probability that it is wrong changes from frame to frame.
+
+\subsection{Freshness of Inferred Information}
+Several works consider status updates whose content is the output of a classifier. Buratto et al.~\cite{buratto2023misclass} add a penalty for misclassification to an AoI scheduling problem. The classifier errs with a fixed probability, and the schedule is computed offline. Gan et al.~\cite{gan2025taoi} define a task-oriented AoI for cameras that pre-identify each frame on the device and send the frames that appear to contain the target to a server, which re-identifies them with a larger model. The error rates of both classifiers are fixed, so the device does not use the confidence of individual frames. Pehlivano\u{g}lu, Li and Uysal~\cite{pehlivanoglu2026orbit} let a satellite choose among idling, running inference on board, sending a cached result and offloading raw data to the ground. Their action set is the closest to ours. They prove that a threshold policy minimizes the age of inference, but each action succeeds with a fixed probability, errors do not depend on the sample, and energy is not constrained. Basnayaka et al.~\cite{basnayaka2025aomi} define the age of misclassified information for event detection from low Earth orbit, again with a constant classification accuracy.
+
+These works establish that the correctness of an inferred update matters for freshness. All of them, however, describe the classifier by a single error rate. A calibrated classifier gives more information than that: it reports, for each frame, how likely its label is to be wrong. We show how to use this information in the decision to stay silent, send a label or ask the ground.
+
+\subsection{Inference Offloading from IoT Devices and UAVs}
+A large body of work decides whether an IoT device or a UAV should run a task locally or offload it to an edge server, usually to minimize delay or energy. Yang et al.~\cite{yang2020uav}, for example, jointly optimize the offloading decisions and the trajectory of a UAV under energy constraints. Our Tiny-SEM framework~\cite{hosny2026tinysem} models the noise of a small semantic encoder and manages the energy of the device with a queue. These works model classifier noise and energy, but they do not measure how fresh or how correct the receiver's knowledge is. Datasets such as FLAME~\cite{shamsoshoara2021flame} for wildfires and AIDER~\cite{kyrkou2020aider} for disaster scenes show that classifiers small enough for a UAV reach useful accuracy, but they also show that such classifiers err on a noticeable fraction of the frames. Post-hoc calibration~\cite{guo2017calibration} makes the output score of such a classifier a reliable probability, which is what our belief update requires.
+
+The energy constraint in our problem is handled with Lyapunov drift-plus-penalty~\cite{neely2010book}. Huang and Neely~\cite{huang2013eh} extend this method to devices that harvest energy into a finite battery. Since the AoII depends on past decisions, the standard performance bound of drift-plus-penalty does not apply directly. The renewal framework of~\cite{neely2013renewal} is the natural tool for such problems, and we discuss it in Section~\ref{sec:lyap}.
+
+\subsection{Positioning}
+Table~\ref{tab:positioning} compares the closest works on four elements: (E1) a per-sample error model driven by the classifier confidence; (E2) AoII on the inferred label; (E3) an energy constraint handled online; and (E4) a choice among silence, a label and raw data. Each prior work covers at most two of these elements fully. Ours combines all four.
+
+\begin{table}[t]
+\caption{Positioning against the closest works. \checkmark: covered; $\circ$: partly covered; --: not covered.}
+\label{tab:positioning}
+\centering\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Work & (E1) per-sample & (E2) AoII on & (E3) online & (E4) silent/\\
+ & errors & inferred label & energy & label/raw\\
+\midrule
+Zakeri et al.~\cite{zakeri2023aoiieh} & -- & \checkmark & $\circ$ & $\circ$\\
+Ngo et al.~\cite{ngo2025eh} & -- & $\circ$ & $\circ$ & --\\
+Buratto et al.~\cite{buratto2023misclass} & $\circ$ & \checkmark & -- & --\\
+Gan et al.~\cite{gan2025taoi} & $\circ$ & $\circ$ & -- & $\circ$\\
+Pehlivano\u{g}lu et al.~\cite{pehlivanoglu2026orbit} & -- & $\circ$ & -- & \checkmark\\
+Basnayaka et al.~\cite{basnayaka2025aomi} & $\circ$ & $\circ$ & -- & --\\
+Yang et al.~\cite{yang2020uav} & $\circ$ & -- & $\circ$ & $\circ$\\
+\midrule
+This work & \checkmark & \checkmark & \checkmark & \checkmark\\
+\bottomrule
+\end{tabular}}
+\end{table}

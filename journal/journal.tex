@@ -1,0 +1,65 @@
+%% Master draft, journal version (IEEE Internet of Things Journal, double column).
+%% The conference version is cut from this text.
+\documentclass[journal]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\let\proof\relax
+\let\endproof\relax
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+
+\newtheorem{assumption}{Assumption}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{theorem}{Theorem}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+\newtheorem{example}{Example}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\ind}[1]{\mathbf{1}\{#1\}}
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\lab}{\ell}
+\newcommand{\Dbar}{\bar{\Delta}}
+\newcommand{\ee}{\varepsilon}
+\newcommand{\xh}{\hat{x}}
+
+\begin{document}
+
+\title{Speak When Sure, Ask When Unsure: Confidence-Aware Status Updates from On-Board Classifiers in Aerial IoT}
+
+\author{Sameh~Hosny and John~Tadrous%
+\thanks{S. Hosny is with the Akian College of Science and Engineering, American University of Armenia, Yerevan, Armenia (e-mail: \{email\}).}%
+\thanks{J. Tadrous is with the Department of Electrical and Computer Engineering, Gonzaga University, Spokane, WA, USA (e-mail: tadrous@gonzaga.edu).}}
+
+\maketitle
+
+\input{sec_abstract.tex}
+\input{sec_intro.tex}
+\input{sec_related.tex}
+\input{sec_model.tex}
+\input{sec_problem.tex}
+\input{sec_structure.tex}
+\input{sec_policy.tex}
+\input{sec_eval.tex}
+\input{sec_discussion.tex}
+
+\appendices
+\input{sec_appendix.tex}
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\end{document}

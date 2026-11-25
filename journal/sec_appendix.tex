@@ -1,0 +1,33 @@
+\section{Proof of Lemma~\ref{lem:mono}}\label{app:mono}
+Let $y=\Lambda_t^{\nu}$, which increases with $\Lambda_t$. By~\eqref{eq:post}, the mass at every $\delta>0$ is multiplied by $y/D$ and the mass at $\delta=0$ by $1/D$, with $D=1-\mu^-_t+\mu^-_ty$. Hence
+\[
+S_t=\frac{y\,S^-_t}{D},\qquad 1-\mu_t=\frac{1-\mu^-_t}{D},
+\]
+and $AS_t-B(1-\mu_t)=N/D$ with $N=AyS^-_t-B(1-\mu^-_t)$. Both $N$ and $D$ are affine in $y$, so the derivative of $N/D$ with respect to $y$ has the sign of
+\begin{multline*}
+AS^-_t\big(1-\mu^-_t+\mu^-_ty\big)-\big(AyS^-_t-B(1-\mu^-_t)\big)\mu^-_t\\
+=(1-\mu^-_t)\big(AS^-_t+B\mu^-_t\big)\ \ge\ 0.
+\end{multline*}
+Since $D>0$, $N/D$ is nondecreasing in $y$, and hence in $\Lambda_t$. \hfill$\blacksquare$
+
+\section{Proof of Proposition~\ref{prop:threshold}}\label{app:threshold}
+Let $f_a=Vq_aG_a-\lambda E_a$ be the objective of~\eqref{eq:rule}, so $f_0=0$. Since $r,w<\frac12$ and $\ee_{\rm g}\le1$, both gains have the form $AS_t-B(1-\mu_t)$ with $A,B\ge0$: for $G_2$, $A=(1-\ee_{\rm g})(1-2w)$ and $B=\ee_{\rm g}(1-2r)$, and for $G_1$ with $d(t)=1$, $A=1-2w$ and $B=1-2r$. The difference $q_1G_1-q_2G_2$ has the same form, with
+\[
+A=(1-2w)\big(q_1-q_2(1-\ee_{\rm g})\big),\qquad B=(1-2r)\big(q_1-q_2\ee_{\rm g}\big),
+\]
+both nonnegative because $q_2\le q_1$. By Lemma~\ref{lem:mono}, $f_2-f_0=Vq_2G_2-\lambda E_2$ and $f_1-f_2=V(q_1G_1-q_2G_2)-\lambda(E_1-E_2)$ are nondecreasing in $\Lambda_t$, and so is their sum $f_1-f_0$.
+
+(a) If $d(t)=1$, then $\Lambda_t$ increases in $c$. Order the actions as $0\prec2\prec1$. The differences between consecutive actions in this order are nondecreasing in $c$, so $f_a$ has increasing differences in $(a,c)$. By Topkis' theorem, the largest maximizer of $f_a$ is nondecreasing in $c$ in this order; with ties broken toward silence, the same holds for the selection of Algorithm~\ref{alg:dpp}. Hence the action moves from 0 to 2 to 1 as $c$ grows, which defines $c_{\rm r}\le c_{\lab}$.
+
+(b) If $d(t)=0$, then $G_1=0$ by Proposition~\ref{prop:confirm}, so $f_1=-\lambda E_1\le f_0$ and the label is never strictly preferred to silence. Now $\Lambda_t$ decreases in $c$, so $f_2-f_0$ is nonincreasing in $c$, and the set of $c$ for which $f_2>f_0$ is an interval of the form $\{c\le c^0_{\rm r}\}$.
+
+(c) For fixed $\mu^-_t$ and $\Lambda_t$, $S^-_t$ appears in $N/D$ only in the numerator, with coefficient $Ay\ge0$. So $f_a-f_0$ is nondecreasing in $S^-_t$ for $a\in\{1,2\}$, and a slot in which some action beats silence still has one when $S^-_t$ grows. Each $f_a-f_0$ with $a\neq0$ decreases in $\lambda$, so a slot in which silence is optimal remains so when $\lambda$ grows. \hfill$\blacksquare$
+
+\section{Proof of Theorem~\ref{thm:budget}}\label{app:budget}
+We first bound the gains. Since the belief is truncated at $\Delta_{\max}$, $S_t=\E_{\pi_t}[(\Delta+1)\ind{\Delta>0}]\le\Delta_{\max}+1$. By~\eqref{eq:G1} and~\eqref{eq:G2}, $G_a\le S_t$ for $a\in\{1,2\}$, because the negative terms can be dropped and $(1-2w)(1-\ee_{\rm g})\le1$. With $q_a\le1$, $Vq_aG_a\le V(\Delta_{\max}+1)$.
+
+Let $z^\star=V(\Delta_{\max}+1)/E_{\min}$. If $Z(t)>z^\star$, then for $a\in\{1,2\}$,
+\[
+Vq_aG_a-Z(t)E_a(g)<V(\Delta_{\max}+1)-z^\star E_{\min}=0=f_0,
+\]
+so CA-DPP stays silent, and~\eqref{eq:Z} gives $Z(t+1)=\max\{Z(t)-\bar E,0\}\le Z(t)$. If $Z(t)\le z^\star$, then $Z(t+1)\le Z(t)+E_{\max}\le z^\star+E_{\max}$. Starting from $Z(0)=0$, induction on $t$ gives $Z(t)\le z^\star+E_{\max}=Z_{\max}$ for all $t$. Inserting this bound in~\eqref{eq:Zbound} gives the energy bound for every $T$, and taking expectations and $T\to\infty$ gives~\eqref{eq:budget}. \hfill$\blacksquare$
