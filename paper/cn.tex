@@ -1,5 +1,5 @@
-%% Elsevier Computer Networks version (elsarticle). Derived from journal.tex (IEEE version), which is kept unchanged.
-\documentclass[preprint,12pt]{elsarticle}
+%% Elsevier Computer Networks version (elsarticle, two-column 5p layout). Same content as cn_onecolumn.tex.
+\documentclass[5p,twocolumn]{elsarticle}
 
 \usepackage{amsmath,amssymb,amsfonts}
 \let\proof\relax
@@ -14,9 +14,8 @@
 \usepackage{lmodern}
 \usepackage{xurl}
 \setlength{\emergencystretch}{2em}
-\usepackage[margin=1in]{geometry}
 \usepackage{tikz}
-\usepackage{lineno}
+\usepackage[switch]{lineno}
 \journal{Computer Networks}
 \usetikzlibrary{arrows.meta,positioning}
 
@@ -115,7 +114,7 @@ Table~\ref{tab:positioning} compares the closest works on four elements: (E1) a 
 \label{tab:positioning}
 \centering\footnotesize
 \setlength{\tabcolsep}{3pt}
-\resizebox{0.75\textwidth}{!}{%
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Work & (E1) per-sample & (E2) AoII on & (E3) online & (E4) silent/\\
@@ -145,7 +144,7 @@ The GS has no sensor of its own. Everything it knows about the patch below the U
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.55\textwidth]{figures/fig_scenario.pdf}
+\includegraphics[width=\columnwidth]{figures/fig_scenario.pdf}
 \caption{System model. A UAV flies over a disaster area, photographs the patch below it and labels each photo on board with a confidence $c(t)$. In each slot it stays silent, sends its label (blue) or uploads the photo to the more accurate ground classifier (orange). The GS keeps the last label received and acks each decoded packet. Inset: the AoII grows while the GS status is wrong and resets when it becomes right. Values shown are examples from Section~\ref{sec:results}.}
 \label{fig:system}
 \end{figure}
@@ -154,7 +153,7 @@ The GS has no sensor of its own. Everything it knows about the patch below the U
 \caption{Main notation}\label{tab:notation}
 \centering\footnotesize
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}p{0.45\textwidth}ll@{}}
+\begin{tabular}{@{}p{0.5\columnwidth}ll@{}}
 \toprule
 Meaning & Symbol & Defined in\\
 \midrule
@@ -180,7 +179,7 @@ Value of an action; its energy price & $G_a$; $Z(t)$, $V$ & Secs.~\ref{sec:struc
 \subsection{Event Dynamics}\label{sec:src}
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.5\textwidth]{figures/fig_markov.pdf}
+\includegraphics[width=0.8\columnwidth]{figures/fig_markov.pdf}
 \caption{Two-state Markov chain of the patch state $X(t)$. A dry patch ($0$) is followed by a flooded one with probability $p_0$, and a flooded patch ($1$) by a dry one with probability $p_1$. With $p_0,p_1<\frac12$ the state tends to persist from one footprint to the next.}
 \label{fig:markov}
 \end{figure}
@@ -513,7 +512,7 @@ Let the UAV be $1.2$\,km from the GS, where $q_1\approx1$, $q_2=0.78$, $E_1=20$\
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.55\textwidth]{figures/regions.pdf}
+\includegraphics[width=\columnwidth]{figures/regions.pdf}
 \caption{Example of the decisions of~\eqref{eq:rule} versus the slots since the last delivery and the on-board confidence $c$. The GS reports ``not flooded'' with $5\%$ initial doubt, the UAV is $1.2$\,km from the GS ($q_1\approx1$, $q_2=0.78$, $E_1=20$\,mJ, $E_2=190$\,mJ), $\lambda/V=2$\,J$^{-1}$ and $\nu=0.25$. (a) An agreeing label is never sent; the frame is uploaded once the status is old, unless the UAV is very confident. (b) A disagreeing frame is uploaded when the UAV is unsure and sent as a label when it is confident (Proposition~\ref{prop:threshold}). Steps come from the binned estimate of $\ee_{\rm g}(c)$.}
 \label{fig:regions}
 \end{figure}
@@ -619,6 +618,7 @@ Table~\ref{tab:params} lists the scenario parameters. Over one orbit of $200$\,s
 \begin{table}[t]
 \caption{Scenario parameters}\label{tab:params}
 \centering\footnotesize
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}ll@{}}
 \toprule
 Parameter & Value\\
@@ -693,7 +693,7 @@ Against the AoII-threshold policy, the outcome depends on the budget. At $0.25$\
 
 \begin{figure}[!tb]
 \centering
-\includegraphics[width=0.55\textwidth]{figures/fig_path.pdf}
+\includegraphics[width=\columnwidth]{figures/fig_path.pdf}
 \caption{Sample path of CA-DPP over $120$ slots at $\bar E=0.5$\,mJ/slot ($V=0.01$, $\nu=0.25$). (a) True state (shaded when flooded), GS status, and the slots in which the UAV sends a label (triangles) or uploads the frame (diamond). (b) AoII of the GS status (left axis) and the belief $\mu_t$ that the GS is wrong (right axis). The belief rises with each disagreeing frame until a label is sent, which resets the AoII.}
 \label{fig:path}
 \end{figure}
@@ -720,7 +720,7 @@ As the share of blocked slots grows from $0$ to $50\%$ (Fig.~\ref{fig:sens}(b)),
 \subsection{The Weight $V$ and the Role of Mobility}\label{res:V}
 \begin{figure}[!tb]
 \centering
-\includegraphics[width=0.55\textwidth]{figures/fig_V_mix.pdf}
+\includegraphics[width=\columnwidth]{figures/fig_V_mix.pdf}
 \caption{(a) Average AoII of CA-DPP (left axis) and energy spent (right axis, dashed) versus $V$ at $\bar E=0.5$\,mJ/slot. In the shaded range the energy stays within $4\%$ of the budget (dotted); a larger $V$ lowers the AoII but overspends. (b) Share of unblocked slots with a label or a raw upload versus the distance to the GS, at $\bar E=2$\,mJ/slot. Uploads dominate near the GS, and labels take over beyond about $0.8$\,km.}
 \label{fig:Vmix}
 \end{figure}
@@ -780,7 +780,9 @@ Table~\ref{tab:corr} shows two effects. With independent errors, CA-DPP lowers t
 \centering\footnotesize
 \begin{tabular}{@{}lccc@{}}
 \toprule
-Setting & CA-DPP, tuned $\nu$ & CA-DPP, rule $\nu$ & AoII threshold\\
+ & \multicolumn{2}{c}{CA-DPP} & AoII\\
+\cmidrule(lr){2-3}
+Setting & tuned $\nu$ & rule $\nu$ & threshold\\
 \midrule
 $\bar E=0.25$\,mJ/slot & $0.645$ & $0.867$ & $0.925$\\
 $\bar E=0.5$\,mJ/slot & $0.526$ & $0.479$ & $0.564$\\
