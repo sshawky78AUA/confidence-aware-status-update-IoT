@@ -3,7 +3,7 @@
 Checked against the journal's Guide for Authors on 2026-11-26: LaTeX submissions may use double-column layout; a PDF alone is not an acceptable source file.
 
 Upload in Editorial Manager:
-1. Manuscript source: cn.tex (two-column elsarticle 5p, 20 pages) with refs.bib and the figures/ folder. Let the system build the PDF, or also upload cn.pdf.
+1. Manuscript source: cn.tex (two-column elsarticle 5p, 19 pages) with refs.bib and the figures/ folder. Let the system build the PDF, or also upload cn.pdf.
 2. Highlights: cn_highlights.txt, as a separate file with "highlights" in the file name (3 to 5 bullets, each at most 85 characters; ours: 5 bullets, longest 83).
 3. CRediT statement: cn_credit_statement.txt (single author, all roles).
 4. Declaration of competing interest: in the manuscript; the system may also ask for the form.
