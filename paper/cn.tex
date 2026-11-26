@@ -146,7 +146,7 @@ The GS has no sensor of its own. Everything it knows about the patch below the U
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.8\columnwidth]{figures/fig_scenario.pdf}
-\caption{System model. A UAV flies over a disaster area, photographs the patch below it and labels each photo on board with a confidence $c(t)$. In each slot it stays silent, sends its label (blue) or uploads the photo to the more accurate ground classifier (orange). The GS keeps the last label received and acks each decoded packet. Inset: the AoII grows while the GS status is wrong and resets when it becomes right. Values shown are examples from Section~\ref{sec:results}.}
+\caption{System model. A UAV flies over a disaster area, photographs the patch below it and labels each photo on board with a confidence $c(t)$. In each slot it stays silent, sends its label (blue) or uploads the photo to the more accurate ground classifier (orange). The GS keeps the last label received and acks each decoded packet. Inset: the AoII grows while the GS status is wrong and resets when it becomes right.}
 \label{fig:system}
 \end{figure}
 
@@ -181,7 +181,7 @@ Value of an action; its energy price & $G_a$; $Z(t)$, $V$ & Secs.~\ref{sec:struc
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.55\columnwidth]{figures/fig_markov.pdf}
-\caption{Two-state Markov chain of the patch state $X(t)$. A dry patch ($0$) is followed by a flooded one with probability $p_0$, and a flooded patch ($1$) by a dry one with probability $p_1$. With $p_0,p_1<\frac12$ the state tends to persist from one footprint to the next.}
+\caption{Two-state Markov chain of the patch state $X(t)$. A dry patch ($0$) is followed by a flooded one with probability $p_0$, and a flooded patch ($1$) by a dry one with probability $p_1$. With $p_0,p_1<\frac12$ the state tends to persist.}
 \label{fig:markov}
 \end{figure}
 We describe the patch below the UAV by a binary state $X(t)\in\{0,1\}$, with $X(t)=1$ if the event is present and $X(t)=0$ otherwise. In the flood example, $X(t)=1$ means that the patch is flooded. The UAV moves a short distance between slots, so consecutive frames cover overlapping areas and the state tends to persist: a flooded footprint is usually followed by another flooded footprint. Note that $X(t)$ refers to the patch below the UAV in slot $t$, not to a fixed patch. The chain therefore describes how the state changes from one footprint to the next along the route, and its transition probabilities depend on the speed of the UAV and on the overlap of its footprints. They are constant because the speed is. The simplest model that captures this persistence is the two-state Markov chain of Fig.~\ref{fig:markov}. Let $p_x$ be the probability that the state leaves $x$ in one slot,
@@ -514,7 +514,7 @@ Let the UAV be $1.2$\,km from the GS, where $q_1\approx1$, $q_2=0.78$, $E_1=20$\
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.8\columnwidth]{figures/regions.pdf}
-\caption{Example of the decisions of~\eqref{eq:rule} versus the slots since the last delivery and the on-board confidence $c$. The GS reports ``not flooded'' with $5\%$ initial doubt, the UAV is $1.2$\,km from the GS ($q_1\approx1$, $q_2=0.78$, $E_1=20$\,mJ, $E_2=190$\,mJ), $\lambda/V=2$\,J$^{-1}$ and $\nu=0.25$. (a) An agreeing label is never sent; the frame is uploaded once the status is old, unless the UAV is very confident. (b) A disagreeing frame is uploaded when the UAV is unsure and sent as a label when it is confident (Proposition~\ref{prop:threshold}). Steps come from the binned estimate of $\ee_{\rm g}(c)$.}
+\caption{Example of the decisions of~\eqref{eq:rule} versus the slots since the last delivery and the on-board confidence $c$. The GS reports ``not flooded'' with $5\%$ initial doubt, the UAV is $1.2$\,km from the GS ($q_1\approx1$, $q_2=0.78$, $E_1=20$\,mJ, $E_2=190$\,mJ), $\lambda/V=2$\,J$^{-1}$ and $\nu=0.25$. (a) An agreeing label is never sent; the frame is uploaded once the status is old, unless the UAV is very confident. (b) A disagreeing frame is uploaded when the UAV is unsure and sent as a label when it is confident (Proposition~\ref{prop:threshold}).}
 \label{fig:regions}
 \end{figure}
 
@@ -684,7 +684,7 @@ Each selected policy then runs four times on the held-out fold. Each run visits 
 \begin{figure*}[t]
 \centering
 \includegraphics{figures/fig_budget.pdf}
-\caption{Performance versus the energy budget $\bar E$: $20$ held-out runs per point ($5$-fold cross-validation over chips) with $95\%$ confidence intervals. (a) Average AoII. (b) Share of slots in which the GS is wrong. (c) AoII reduction of CA-DPP relative to each policy, with paired intervals (positive favors CA-DPP). CA-DPP beats the pre-identification, age-threshold and always-offload policies at every budget, and the AoII-threshold policy at $0.25$\,mJ/slot; from $1$\,mJ/slot on the two perform the same within statistical error. Baselines adapted from~\cite{zakeri2023aoiieh,gan2025taoi,pehlivanoglu2026orbit,basnayaka2025aomi}.}
+\caption{Performance versus the energy budget $\bar E$: $20$ held-out runs per point ($5$-fold cross-validation over chips) with $95\%$ confidence intervals. (a) Average AoII. (b) Share of slots in which the GS is wrong. (c) AoII reduction of CA-DPP relative to each policy, with paired intervals (positive favors CA-DPP). Baselines adapted from~\cite{zakeri2023aoiieh,gan2025taoi,pehlivanoglu2026orbit,basnayaka2025aomi}.}
 \label{fig:budget}
 \end{figure*}
 
@@ -710,7 +710,7 @@ Raw uploads pay off at larger budgets. Without them, the AoII stays at $0.43$ fr
 \begin{figure*}[t]
 \centering
 \includegraphics{figures/fig_sensitivity.pdf}
-\caption{Sensitivity of the average AoII, $20$ held-out runs per point. (a) On-board accuracy (base model and four noisy variants) and (b) share of blocked slots $\rho_{\rm b}/(\rho_{\rm b}+\rho_{\rm u})$, both at $\bar E=0.5$\,mJ/slot. (c) Raw frame size $L_2$ at $\bar E=2$\,mJ/slot. CA-DPP degrades least as the classifier weakens, blockage hurts all policies without changing their order, and larger frames make uploads less useful.}
+\caption{Sensitivity of the average AoII, $20$ held-out runs per point. (a) On-board accuracy (base model and four noisy variants) and (b) share of blocked slots $\rho_{\rm b}/(\rho_{\rm b}+\rho_{\rm u})$, both at $\bar E=0.5$\,mJ/slot. (c) Raw frame size $L_2$ at $\bar E=2$\,mJ/slot.}
 \label{fig:sens}
 \end{figure*}
 
@@ -818,7 +818,7 @@ The selection itself is noisy. With $\nu$ fixed and only $V$ tuned, CA-DPP reach
 Two design lessons follow. First, never send a label that agrees with the receiver (Proposition~\ref{prop:confirm}); much of the $52\%$ to $75\%$ gap to the pre-identification and age-threshold policies comes from the energy they spend on such labels. Second, calibrate the classifier on board: isotonic calibration is a lookup table, and the prior correction~\eqref{eq:lik} matters because monitored events are rare.
 
 \subsection{Correlated Errors}
-The main weakness of CA-DPP at large budgets is Assumption~\ref{as:inf}(ii): the on-board errors come in runs (Section~\ref{res:cls}). The tempered update~\eqref{eq:post} discounts every frame equally and cannot tell new evidence from a repeated error. Section~\ref{res:corr} shows that this costs CA-DPP most of its advantage over the threshold policy at large budgets, and that the rule for $\nu$ recovers part of it. A hidden Markov model of the classifier state could recover more, at twice the belief size.
+The main weakness of CA-DPP at large budgets is Assumption~\ref{as:inf}(ii): the on-board errors come in runs (Section~\ref{res:cls}). The tempered update~\eqref{eq:post} discounts every frame equally and cannot tell new evidence from a repeated error. Section~\ref{res:corr} shows that this costs CA-DPP most of its advantage over the threshold policy at large budgets, and that the rule for $\nu$ recovers part of it. A hidden Markov model of the classifier state could recover more.
 
 \subsection{Other IoT Settings}
 Nothing in the model is specific to UAVs or floods. The link and energy models fit any device whose channel varies predictably, such as a low-Earth-orbit satellite that sees a ground station only during passes. A non-binary scene needs a belief over the AoII and the current class, but the gains keep their structure: a right update removes AoII and a wrong one creates it.
