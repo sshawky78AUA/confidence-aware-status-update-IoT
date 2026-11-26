@@ -13,6 +13,8 @@ Guide for Authors: https://www.sciencedirect.com/journal/computer-networks/publi
 | credit_author_statement.docx | CRediT author statement |
 | declarations.docx | Competing interest, funding, data availability, generative-AI statements (also in the manuscript), for pasting into the forms |
 | abstract.txt | Plain-text abstract for the abstract field |
+| bio.docx | Author biography (91 words, limit 100) |
+| author_photo_Sameh_Hosny.jpg | Author photo (passport-type, separate file) |
 
 ## Steps
 
@@ -28,7 +30,7 @@ Guide for Authors: https://www.sciencedirect.com/journal/computer-networks/publi
 6. Funding: no specific grant.
 7. Publication route: subscription (no article publishing charge). Open access would carry an APC.
 8. Optional: cover letter, suggested reviewers, graphical abstract.
-9. The journal asks for a biography of at most 100 words per author and a passport-type photo, as separate editable files. These are not in this package yet.
+9. Upload bio.docx and author_photo_Sameh_Hosny.jpg (the journal asks for a biography of at most 100 words and a passport-type photo per author).
 10. Check the PDF the system builds, then submit.
 
 ## Abstract (plain text)
