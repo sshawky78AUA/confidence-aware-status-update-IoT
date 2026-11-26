@@ -84,11 +84,11 @@ We address three questions. \emph{(Q1)} In each slot, should the UAV stay silent
 \item \emph{Evaluation.} We evaluate CA-DPP on inference traces from the Sen1Floods11 dataset~\cite{bonafilia2020sen1floods11} under chip-level cross-validation, against policies adapted from four recent designs~\cite{zakeri2023aoiieh,gan2025taoi,pehlivanoglu2026orbit,basnayaka2025aomi}. The per-frame confidence pays off under tight energy budgets and with weak on-board classifiers, and raw uploads pay off near the GS at larger budgets; with an accurate classifier and ample energy, simpler policies perform as well. In a synthetic model that satisfies our assumptions, a full-information lower bound places CA-DPP within $14\%$ to $25\%$ of the optimum, and correlated errors show where its advantage fades (Sections~\ref{sec:results} and~\ref{sec:discussion}).
 \end{enumerate}
 
-The rest of the paper is organized as follows. Section~\ref{sec:related} reviews related work, Sections~\ref{sec:model} to~\ref{sec:lyap} answer Q1, Section~\ref{sec:results} answers Q2 and Q3, Section~\ref{sec:discussion} discusses implications and limitations, Section~\ref{sec:concl} concludes; proofs are in the appendix.
+The rest of the paper is organized as follows. Section~\ref{sec:related} reviews related work, Sections~\ref{sec:model} to~\ref{sec:lyap} answer Q1, Section~\ref{sec:results} answers Q2 and Q3, Section~\ref{sec:discussion} discusses the results, Section~\ref{sec:concl} concludes; proofs are in the appendix.
 %% =====================================================================
 \section{Related Work}\label{sec:related}
 %% =====================================================================
-We review three lines of research: AoII, freshness of inferred information, and inference offloading from IoT devices and UAVs.
+We review AoII, the freshness of inferred information, and inference offloading from IoT devices and UAVs.
 
 \subsection{Age of Incorrect Information}
 The AoI treats every update as correct, so it cannot tell a fresh wrong estimate from a fresh correct one. Maatouk et al.~\cite{maatouk2020aoii} introduced the AoII to fix this. The AoII is zero while the receiver's estimate equals the source state and grows with time while the two differ. For a Markov source observed perfectly by the transmitter, they showed that the optimal policy transmits only when the estimate is wrong.
@@ -228,7 +228,7 @@ After a raw upload, the ground classifier labels the frame. We denote its label 
 \label{fig:inference}
 \end{figure*}
 
-We collect these modeling choices in an assumption. It is used only to design the controller; the simulations in Section~\ref{sec:results} replay real classifier outputs, which do not satisfy it exactly.
+We collect these modeling choices in an assumption. It is used only to design the controller; the simulations in Section~\ref{sec:results} replay real classifier outputs, which only approximate it.
 
 \begin{assumption}[Inference model]\label{as:inf}
 (i) The on-board classifier is calibrated, i.e.,~\eqref{eq:calib} holds. (ii) Given the source path, the on-board outputs $(\lab(t),c(t))$ are independent across slots. (iii) Given $X(t)$ and $c(t)=c$, the ground label is wrong with probability $\ee_{\rm g}(c)<\tfrac12$, independently of $\lab(t)$ and of the past.
@@ -261,7 +261,7 @@ q_a(g)=(1-\beta)\,\exp\!\Big(-\frac{\gamma_a}{\bar\gamma(g)}\Big),\qquad \gamma_
 for $a\in\{1,2\}$,
 and $q_0\equiv0$. Here $\gamma_a$ is the SNR needed to deliver $L_a$ bits within the window. Since $L_2>L_1$, $\gamma_2>\gamma_1$, so $q_2(g)\le q_1(g)$ in every link state.
 
-The link is therefore an erasure channel: a packet either arrives intact or is lost, and a lost packet leaves the GS status unchanged. The link never changes the content of a label. Every packet carries an $n$-bit cyclic redundancy check (CRC), and the GS discards a packet whose check fails; a corrupted packet passes with probability about $2^{-n}$, which is negligible for the CRC lengths used in practice (Section~\ref{sec:results} gives ours). The GS acknowledges only the packets it decodes, so an acknowledgment missing at the end of the slot tells the UAV that the packet was lost and the GS status is unchanged. We assume that acknowledgments always arrive, since they carry only the binary status (and, after an upload, the ground label) and the GS sends them at higher power.
+The link is therefore an erasure channel: a packet either arrives intact or is lost, and a lost packet leaves the GS status unchanged. The link never changes the content of a label. Every packet carries an $n$-bit cyclic redundancy check (CRC), and the GS discards a packet whose check fails; a corrupted packet passes with probability about $2^{-n}$, which is negligible for the CRC lengths used in practice (Section~\ref{sec:results} gives ours). The GS acknowledges only the packets it decodes, so an acknowledgment missing at the end of the slot tells the UAV that the packet was lost and the GS status is unchanged. We assume acknowledgments always arrive, since they carry only the status (and, after an upload, the ground label) and the GS sends them at higher power.
 
 \begin{remark}[Undetected errors]\label{rem:flip}
 Suppose instead that a decoded label is flipped with a small probability $\ee_{\rm u}$. Because the label is binary, a flipped disagreeing label equals the current GS status, so it changes nothing. A bit error on the link can therefore cancel an update but cannot make a correct GS status wrong. Its only effect is to replace $q_1(g)$ by $q_1(g)(1-\ee_{\rm u})$ in everything that follows. An undetected error in a raw frame corrupts the photo rather than the label, and its effect folds into the ground error $\ee_{\rm g}(c)$.
@@ -333,7 +333,7 @@ together with the ground label of every decoded upload.
 It does not know the state $X(t)$ and therefore cannot compute the AoII $\Delta(t)$. A policy $\psi$ is a rule that maps the information $\I(t)$ to a probability distribution on the action set $\A$, from which $a(t)$ is drawn. We allow randomized policies because problems with an average constraint may need them to use the budget exactly. A transmission is pointless when the link is blocked, so we consider only policies with $a(t)=0$ whenever $q_1(g(t))=0$, and we denote their set by $\Psi$.
 
 \subsection{The Optimization Problem}
-The response teams need a GS status that is correct as often as possible and, when it is wrong, is corrected quickly. The long-run average AoII measures both: it grows with the fraction of slots in which the status is wrong, and it grows faster when the wrong periods are long, since the AoII counts the slots of each wrong period. Under a policy $\psi$, the average AoII and the average energy are
+The response teams need a GS status that is correct as often as possible and, when it is wrong, is corrected quickly. The long-run average AoII measures both: it grows with the fraction of slots in which the status is wrong, and it grows faster when the wrong periods are long, since the AoII counts the slots of each wrong period. Under a policy $\psi$, the average AoII and energy are
 \begin{align}
 \bar\Delta^{\psi}&=\limsup_{T\to\infty}\frac1T\sum_{t=0}^{T-1}\E^{\psi}\big[\Delta(t)\big],\label{eq:avgaoii}\\
 \bar E^{\psi}&=\limsup_{T\to\infty}\frac1T\sum_{t=0}^{T-1}\E^{\psi}\Big[E_{a(t)}\big(g(t)\big)\Big],\label{eq:avgE}
@@ -361,7 +361,7 @@ By~\eqref{eq:aoii}, $\Delta(t)>0$ iff $X(t)\neq\hat X(t)$, so $(\hat X(t),\Delta
 
 The mass of $\pi_t$ at $\delta=0$ is the probability that the GS is correct, and its mass at $\delta>0$ tells how long the GS has probably been wrong. For a given $\delta$, we write $x_\delta$ for the state implied by Lemma~\ref{lem:suff}, i.e., $x_0=\hat X(t)$ and $x_\delta=1-\hat X(t)$ for $\delta>0$.
 
-To store the belief with finite memory, we truncate its support at $\Delta_{\max}$, adding all mass above $\Delta_{\max}$ to the mass at $\Delta_{\max}$. The belief is then a vector of $\Delta_{\max}+1$ numbers. The truncation is harmless as long as $\Delta_{\max}$ is well above the AoII values that actually occur, so that the mass at $\Delta_{\max}$ stays negligible; Section~\ref{sec:results} gives the value we use and checks this.
+To store the belief with finite memory, we truncate its support at $\Delta_{\max}$, adding all mass above $\Delta_{\max}$ to the mass at $\Delta_{\max}$. The belief is then a vector of $\Delta_{\max}+1$ numbers. The truncation is harmless as long as $\Delta_{\max}$ is well above the AoII values that actually occur, so that the mass at $\Delta_{\max}$ stays negligible; Section~\ref{sec:results} gives our value and checks this.
 
 \subsection{Belief Update}\label{sec:update}
 The belief changes for three reasons in each slot: the UAV sees a new on-board label, it may receive a ground label, and the scene evolves. Let $\pi^-_t$ denote the belief at the start of slot $t$, before the new frame is classified. The update has three steps.
@@ -504,7 +504,7 @@ Fix $\pi^-_t$, $\hat X(t)$, $g$ and $\lambda(t)$, and let $I$ be an interval of 
 \end{enumerate}
 \end{proposition}
 
-The proof is in Appendix~\ref{app:threshold}. Across bins the thresholds can shift where $\ee_{\rm g}(c)$ jumps, which causes the steps in Fig.~\ref{fig:regions}. Part (a) is the rule of the title. A frame that disagrees with the GS is sent as a label when the UAV is sure of it, sent to the ground when the UAV is unsure, and withheld when it is too unsure for either to pay off. Part (b) says that a frame that agrees with the GS can still be worth uploading, but only if it is unsure: an unsure agreement leaves room for the GS to be wrong, and the ground classifier can check. Part (c) says that the UAV becomes more willing to act the longer the GS has probably been wrong, and less willing as energy becomes more expensive.
+The proof is in Appendix~\ref{app:threshold}. Across bins the thresholds can shift where $\ee_{\rm g}(c)$ jumps, which causes the steps in Fig.~\ref{fig:regions}. Part (a) is the rule of the title. A frame that disagrees with the GS is sent as a label when the UAV is sure of it, sent to the ground when the UAV is unsure, and withheld when it is too unsure for either to pay off. Part (b) says that a frame that agrees with the GS can still be worth uploading, but only if it is unsure: an unsure agreement leaves room for the GS to be wrong, and the ground classifier can check. Part (c) says that the UAV acts more readily the longer the GS has probably been wrong, and less readily as energy becomes costlier.
 
 \setcounter{example}{0}
 \begin{example}[continued]
@@ -581,7 +581,7 @@ Consequently, $\frac1T\sum_{t<T}E_{a(t)}(g(t))\le\bar E+Z_{\max}/T$ for every $T
 
 The proof is in Appendix~\ref{app:budget}. A gain never exceeds $\Delta_{\max}+1$, so once $Z(t)E_a(g)$ exceeds $V(\Delta_{\max}+1)$ for every transmission, the UAV stays silent and the debt drains. The bound~\eqref{eq:Zmax} is loose; it shows that the budget is met by construction, and Section~\ref{sec:results} shows how close the spent energy stays to the budget in practice.
 
-Theorem~\ref{thm:budget} guarantees the energy on every sample path. For the AoII, CA-DPP is a heuristic with a clear basis: it minimizes the next-slot AoII plus the priced energy. We have no analytical bound on its gap to the optimum of (P) (Remark~\ref{rem:opt}), so Section~\ref{sec:results} assesses its AoII on data and bounds the gap numerically in a model that satisfies Assumption~\ref{as:inf}.
+Theorem~\ref{thm:budget} guarantees the energy on every sample path. For the AoII, CA-DPP is a heuristic with a clear basis: it minimizes the next-slot AoII plus the priced energy. We have no analytical bound on its gap to the optimum of (P) (Remark~\ref{rem:opt}), so Section~\ref{sec:results} assesses its AoII on data and bounds the gap numerically under Assumption~\ref{as:inf}.
 
 \subsection{Complexity and Parameters}
 A slot of CA-DPP costs $O(\Delta_{\max})$ operations, linear in the length of the belief vector. The memory is the belief vector, $\Delta_{\max}+1$ numbers, plus small tables of $\ee_{\rm g}(c)$, $q_a(g)$ and $E_a(g)$.
@@ -604,7 +604,7 @@ We evaluate CA-DPP on real classifier outputs, replayed over a simulated air-to-
 \subsection{Data}
 We build the traces from the hand-labeled part of Sen1Floods11~\cite{bonafilia2020sen1floods11}. It contains 446 Sentinel-2 chips of $512\times512$ pixels at $10$\,m resolution from eleven flood events on several continents, with per-pixel water labels and official train, validation and test splits. No UAV flood dataset with pixel labels of comparable size exists, so this imagery stands in for the UAV view.
 
-To turn a chip into a sequence of frames, a $64\times64$-pixel footprint scans the chip along a serpentine path with a stride of $32$ pixels, one footprint per slot. Consecutive footprints therefore overlap by half, as consecutive frames of a UAV flying at constant speed would. This scan gives the sequence of photos; the position of the UAV, which sets the link, follows the route described below and is generated separately (see Section~\ref{sec:discussion}). A footprint is labeled flooded if at least $10\%$ of its labeled pixels are water, and footprints with less than $80\%$ labeled pixels are skipped. This leaves $46{,}774$, $16{,}612$ and $16{,}811$ slots in the train, validation and test splits. The resulting state sequence is strongly correlated: on the training split, $p_0=0.039$ and $p_1=0.166$, so a dry stretch lasts $26$ slots on average, a flooded stretch $6$ slots, and $\varpi_1=19\%$ of the footprints are flooded.
+To turn a chip into a sequence of frames, a $64\times64$-pixel footprint scans the chip along a serpentine path with a stride of $32$ pixels, one footprint per slot. Consecutive footprints therefore overlap by half, as consecutive frames of a UAV flying at constant speed would. This scan gives the sequence of photos; the position of the UAV, which sets the link, follows the route described below and is generated separately (see Section~\ref{sec:discussion}). A footprint is labeled flooded if at least $10\%$ of its labeled pixels are water, and footprints with less than $80\%$ labeled pixels are skipped. This leaves $46{,}774$, $16{,}612$ and $16{,}811$ slots in the train, validation and test splits. The resulting state sequence is strongly correlated: on the training split, $p_0=0.039$ and $p_1=0.166$, so dry stretches last $26$ slots on average, flooded ones $6$, and $\varpi_1=19\%$ of footprints are flooded.
 
 \subsection{Classifiers}\label{res:cls}
 The on-board model must fit a small processor. It is a logistic regression on the blue, green, red and near-infrared bands averaged over $8\times8$ pixel blocks ($257$ parameters). The larger ground model is a gradient-boosted tree ensemble with $300$ trees; its $77$ inputs are the mean, standard deviation and $10/50/90$th percentiles of all $13$ bands and two water indices, plus the share of water pixels by each index. Both models are trained on the training chips and calibrated by isotonic regression on the validation chips, never on the test chips.
