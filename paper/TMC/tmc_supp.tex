@@ -46,7 +46,7 @@ E-mail: sameh.hosny@aua.am}}
 \markboth{IEEE Transactions on Mobile Computing}{Hosny: Supplementary Material}
 \maketitle
 
-This document supplements the main paper. Equation, section, lemma, proposition, theorem, figure and table numbers without the prefix S refer to the main paper. Section~\ref{sec:smodel} gives the notation and model details, Section~\ref{sec:sexample} a worked example of the belief update and the decision rule, Section~\ref{sec:sproofs} the proofs, and Section~\ref{sec:sresults} additional results.
+This document supplements the main paper. Equation, section, lemma, proposition, theorem, figure and table numbers without the prefix S refer to the main paper. Section~\ref{sec:smodel} gives the notation and model details, Section~\ref{sec:sproofs} the proofs, and Section~\ref{sec:sresults} additional results.
 
 \section{Notation and Model Details}\label{sec:smodel}
 Table~\ref{tab:notation} summarizes the notation. Fig.~\ref{fig:markov} shows the two-state Markov chain of the patch state $X(t)$ in~(1).
@@ -124,25 +124,6 @@ Suppose instead that a decoded label is flipped with a small probability $\ee_{\
 \begin{remark}[Harvesting battery]\label{rem:harvest}
 If the UAV, or a ground sensor running the same policy, harvests energy into a finite battery with content $B(t)$, the constraint becomes that the battery never runs empty. The perturbed Lyapunov method of~\cite{huang2013eh} applies the same derivation to the battery, shifted by a constant $\theta$, and yields~(30) with $\lambda(t)=\theta-B(t)$: energy becomes expensive when the battery is low. With a battery capacity of at most $\theta$, the price stays nonnegative, so Proposition~1 still applies. By the argument behind Theorem~1, choosing $\theta\ge E_{\max}+V(\Delta_{\max}+1)/E_{\min}$ ensures that the UAV never chooses an action that the battery cannot pay for.
 \end{remark}
-
-\section{Worked Example}\label{sec:sexample}
-This example follows one UAV over two slots, first through the belief update of Section~4.4 and then through the decision rule~(30). The numbers are illustrative and are taken from the evaluation setting of Section~7.
-
-\begin{example}\label{ex:belief}
-Let the GS report ``not flooded'' ($\hat X(t)=0$), and let the UAV hold the belief $\pi^-_t(0)=0.95$, $\pi^-_t(1)=0.05$: it is fairly sure the GS is right. A frame then arrives with label ``flooded'' and confidence $c=0.9$, so $d(t)=1$. With $\varpi_0=0.81$ and $\varpi_1=0.19$,~(20) gives $\Lambda_t=(0.81/0.19)(0.9/0.1)=38.4$: the frame is $38$ times more likely if the GS is wrong. With exact Bayes' rule ($\nu=1$),~(21) gives $\mu_t=0.05\cdot38.4/(0.95+0.05\cdot38.4)=0.67$: one confident frame makes the GS more likely wrong than right. With $\nu=0.5$ the same frame gives only $\mu_t=0.25$, and with $\nu=0.25$ it gives $\mu_t=0.12$. Suppose the UAV stays silent. The prediction~(22) with $p_0=0.039$ and $p_1=0.166$ gives $\mu^-_{t+1}=0.23$ for $\nu=0.5$. If the next frame again says ``flooded'' with $c=0.9$, the belief rises to $\mu_{t+1}=0.65$. With the tempered update, the UAV therefore needs two consistent frames to become as convinced as one frame makes it under exact Bayes' rule. The next two parts of the example show what the UAV does in each of these two slots.
-\end{example}
-
-\subsection{Gains of the Three Actions}
-\setcounter{example}{0}
-\begin{example}[continued]
-In slot $t$ of Example~\ref{ex:belief} with $\nu=0.5$, the belief is $\mu_t=0.25$ and $S_t=0.49$, and the ground error at $c=0.9$ is $\ee_{\rm g}=0.028$ (Fig.~\ref{fig:inference}(b)). With $\xh=0$, $r=p_0=0.039$ and $w=p_1=0.166$. Lemma~2 gives $G_1=-0.37$ and $G_2=0.30$: sending the label would more likely harm than help, while asking the ground would help. In slot $t+1$, after the second disagreeing frame, $\mu_{t+1}=0.65$ and the gains become $G_1=0.94$ and $G_2=1.21$. Now the GS is probably wrong, and the label is worth sending.
-\end{example}
-
-\subsection{Decision}
-\setcounter{example}{0}
-\begin{example}[continued]
-Let the UAV be $1.2$\,km from the GS, where $q_1\approx1$, $q_2=0.78$, $E_1=20$\,mJ and $E_2=190$\,mJ. In slot $t$, the label has $q_1G_1<0$, and the upload has $q_2G_2=0.23$, so~(30) uploads the frame if $\lambda/V<0.23/0.19=1.2$\,J$^{-1}$ and stays silent otherwise. In slot $t+1$, $q_1G_1=0.94$ and $q_2G_2=0.95$ are almost equal, but the label costs a tenth of the upload, so the UAV sends the label for any price between about $0.05$ and $47$\,J$^{-1}$. At the price $\lambda/V=2$\,J$^{-1}$ used in Fig.~2, the UAV thus waits in slot $t$ and sends the label in slot $t+1$.
-\end{example}
 
 \section{Proofs}\label{sec:sproofs}
 \subsection{Proof of Lemma~3}\label{app:mono}

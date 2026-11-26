@@ -10,8 +10,8 @@ Checked on 2026-11-26 against the journal's own pages:
 
 | Rule | This version |
 |---|---|
-| Regular paper: 12 double-column pages free, including references and author biographies; each extra page or fraction costs $220 (submissions up to 18 pages) | 12 pages in IEEEtran compsoc journal format, with the biography and photo. About a third of the right column on page 12 is still free, as a buffer for the final layout |
-| Supplemental material in separate files, not in the main PDF; no page limit; appendices count as supplemental | tmc_supp.pdf (5 pages): proofs, worked example, notation table, extra figures and robustness checks |
+| Regular paper: 12 double-column pages free, including references and author biographies; each extra page or fraction costs $220 (submissions up to 18 pages) | 12 full pages in IEEEtran compsoc journal format (the official IEEE Computer Society LaTeX template), with the biography and a 1 in x 1.25 in photo |
+| Supplemental material in separate files, not in the main PDF; no page limit; appendices count as supplemental | tmc_supp.pdf (4 pages): proofs, notation table, extra figures and robustness checks |
 | Abstract 100 to 200 words, no math or citations | 199 words, plain text, no math |
 | Keywords from the ACM taxonomy offered in the submission system, at least three | Pick these terms or the closest ones in the list: age of information / age of incorrect information; on-board inference; confidence calibration; unmanned aerial vehicles; Internet of Things; Lyapunov optimization; partially observable Markov decision processes |
 | AI-generated content must be disclosed in the acknowledgments section, naming the system and the sections | In the Acknowledgments of tmc.tex |
