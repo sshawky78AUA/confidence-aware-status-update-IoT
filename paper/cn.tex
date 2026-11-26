@@ -83,10 +83,10 @@ We address three questions. \emph{(Q1)} In each slot, should the UAV stay silent
 \item \emph{Model.} We formulate confidence-aware status updating as a constrained partially observable Markov decision process (POMDP). It couples a calibrated per-sample error model of the on-board classifier, a ground classifier, an intermittent air-to-ground link and an energy budget. We show that a belief over the current AoII is a sufficient statistic, and we derive its update, including a prior correction and a tempered likelihood for errors that are correlated in time (Sections~\ref{sec:model} and~\ref{sec:belief}).
 \item \emph{Structure.} We derive the one-step expected AoII of each action in closed form. We prove that a label that agrees with the GS has no value and that the per-slot decision has a threshold structure in the confidence: the UAV stays silent at low confidence, uploads the raw frame at intermediate confidence, and sends the label at high confidence (Section~\ref{sec:structure}).
 \item \emph{Policy.} We build the online policy CA-DPP on these results and prove that it meets the energy budget on every sample path. CA-DPP needs no knowledge of the confidence distribution, the blockage statistics or the trajectory, and its per-slot cost is linear in the size of the belief (Section~\ref{sec:lyap}).
-\item \emph{Evaluation.} We evaluate CA-DPP on inference traces from the Sen1Floods11 dataset~\cite{bonafilia2020sen1floods11} under chip-level cross-validation, against policies adapted from four recent designs~\cite{zakeri2023aoiieh,gan2025taoi,pehlivanoglu2026orbit,basnayaka2025aomi}. The per-frame confidence pays off under tight energy budgets and with weak on-board classifiers, and raw uploads pay off near the GS at larger budgets; with an accurate classifier and ample energy, simpler policies perform as well. In a synthetic model that satisfies our assumptions, a full-information lower bound places CA-DPP within $14\%$ to $25\%$ of the optimum, and a variant with correlated errors shows where its advantage fades (Sections~\ref{sec:results} and~\ref{sec:discussion}).
+\item \emph{Evaluation.} We evaluate CA-DPP on inference traces from the Sen1Floods11 dataset~\cite{bonafilia2020sen1floods11} under chip-level cross-validation, against policies adapted from four recent designs~\cite{zakeri2023aoiieh,gan2025taoi,pehlivanoglu2026orbit,basnayaka2025aomi}. The per-frame confidence pays off under tight energy budgets and with weak on-board classifiers, and raw uploads pay off near the GS at larger budgets; with an accurate classifier and ample energy, simpler policies perform as well. In a synthetic model that satisfies our assumptions, a full-information lower bound places CA-DPP within $14\%$ to $25\%$ of the optimum, and correlated errors show where its advantage fades (Sections~\ref{sec:results} and~\ref{sec:discussion}).
 \end{enumerate}
 
-The rest of the paper is organized as follows. Section~\ref{sec:related} reviews related work, Sections~\ref{sec:model} to~\ref{sec:lyap} answer Q1, Section~\ref{sec:results} answers Q2 and Q3, Section~\ref{sec:discussion} discusses implications and limitations, Section~\ref{sec:concl} concludes, and the proofs are in the appendix.
+The rest of the paper is organized as follows. Section~\ref{sec:related} reviews related work, Sections~\ref{sec:model} to~\ref{sec:lyap} answer Q1, Section~\ref{sec:results} answers Q2 and Q3, Section~\ref{sec:discussion} discusses implications and limitations, Section~\ref{sec:concl} concludes; proofs are in the appendix.
 %% =====================================================================
 \section{Related Work}\label{sec:related}
 %% =====================================================================
@@ -107,7 +107,7 @@ These works establish that the correctness of an inferred update matters for fre
 \subsection{Inference Offloading from IoT Devices and UAVs}
 A large body of work decides whether an IoT device or a UAV should run a task locally or offload it to an edge server, usually to minimize delay or energy. Yang et al.~\cite{yang2020uav}, for example, split a deep network for UAV target tracking between the UAV and an edge server so as to minimize a weighted sum of delay and energy. Such work accounts for delay and energy, but it does not measure how fresh or how correct the receiver's knowledge is. Datasets such as FLAME~\cite{shamsoshoara2021flame} for wildfires and AIDER~\cite{kyrkou2020aider} for disaster scenes show that classifiers small enough for a UAV reach useful accuracy, but they also show that such classifiers err on a noticeable fraction of the frames. Post-hoc calibration~\cite{guo2017calibration} makes the output score of such a classifier a reliable probability, which is what our belief update requires.
 
-The energy constraint in our problem is handled with Lyapunov drift-plus-penalty~\cite{neely2010book}. Huang and Neely~\cite{huang2013eh} extend this method to devices that harvest energy into a finite battery. Since the AoII depends on past decisions, the standard performance bound of drift-plus-penalty does not apply directly. The renewal framework of~\cite{neely2013renewal} is the natural tool for such problems, and we discuss it in Section~\ref{sec:lyap}.
+The energy constraint in our problem is handled with Lyapunov drift-plus-penalty~\cite{neely2010book}. Huang and Neely~\cite{huang2013eh} extend this method to devices that harvest energy into a finite battery. Since the AoII depends on past decisions, the standard performance bound of drift-plus-penalty does not apply directly. The renewal framework of~\cite{neely2013renewal} is the natural tool for such problems (Section~\ref{sec:lyap}).
 
 \subsection{Positioning}
 Table~\ref{tab:positioning} compares the closest works on four elements: (E1) a per-sample error model driven by the classifier confidence; (E2) AoII on the inferred label; (E3) an energy constraint handled online; and (E4) a choice among silence, a label and raw data. Each prior work covers at most two of these elements fully. Ours combines all four.
@@ -147,7 +147,7 @@ The GS has no sensor of its own. Everything it knows about the patch below the U
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.88\columnwidth]{figures/fig_scenario.pdf}
+\includegraphics[width=0.8\columnwidth]{figures/fig_scenario.pdf}
 \caption{System model. A UAV flies over a disaster area, photographs the patch below it and labels each photo on board with a confidence $c(t)$. In each slot it stays silent, sends its label (blue) or uploads the photo to the more accurate ground classifier (orange). The GS keeps the last label received and acks each decoded packet. Inset: the AoII grows while the GS status is wrong and resets when it becomes right. Values shown are examples from Section~\ref{sec:results}.}
 \label{fig:system}
 \end{figure}
@@ -182,7 +182,7 @@ Value of an action; its energy price & $G_a$; $Z(t)$, $V$ & Secs.~\ref{sec:struc
 \subsection{Event Dynamics}\label{sec:src}
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.62\columnwidth]{figures/fig_markov.pdf}
+\includegraphics[width=0.55\columnwidth]{figures/fig_markov.pdf}
 \caption{Two-state Markov chain of the patch state $X(t)$. A dry patch ($0$) is followed by a flooded one with probability $p_0$, and a flooded patch ($1$) by a dry one with probability $p_1$. With $p_0,p_1<\frac12$ the state tends to persist from one footprint to the next.}
 \label{fig:markov}
 \end{figure}
@@ -266,7 +266,7 @@ and $q_0\equiv0$. Here $\gamma_a$ is the SNR needed to deliver $L_a$ bits within
 The link is therefore an erasure channel: a packet either arrives intact or is lost, and a lost packet leaves the GS status unchanged. The link never changes the content of a label. Every packet carries an $n$-bit cyclic redundancy check (CRC), and the GS discards a packet whose check fails; a corrupted packet passes with probability about $2^{-n}$, which is negligible for the CRC lengths used in practice (Section~\ref{sec:results} gives ours). The GS acknowledges only the packets it decodes, so an acknowledgment missing at the end of the slot tells the UAV that the packet was lost and the GS status is unchanged. We assume that acknowledgments always arrive, since they carry only the binary status (and, after an upload, the ground label) and the GS sends them at higher power.
 
 \begin{remark}[Undetected errors]\label{rem:flip}
-Suppose instead that a decoded label is flipped with a small probability $\ee_{\rm u}$. Because the label is binary, a flipped disagreeing label equals the current GS status, so it changes nothing. A bit error on the link can therefore cancel an update but cannot make a correct GS status wrong. Its only effect is to replace $q_1(g)$ by $q_1(g)(1-\ee_{\rm u})$ in everything that follows. An undetected error in a raw frame corrupts the photo rather than the label, and its effect can be folded into the ground error $\ee_{\rm g}(c)$.
+Suppose instead that a decoded label is flipped with a small probability $\ee_{\rm u}$. Because the label is binary, a flipped disagreeing label equals the current GS status, so it changes nothing. A bit error on the link can therefore cancel an update but cannot make a correct GS status wrong. Its only effect is to replace $q_1(g)$ by $q_1(g)(1-\ee_{\rm u})$ in everything that follows. An undetected error in a raw frame corrupts the photo rather than the label, and its effect folds into the ground error $\ee_{\rm g}(c)$.
 \end{remark}
 
 \subsection{Energy Consumption}
@@ -515,7 +515,7 @@ Let the UAV be $1.2$\,km from the GS, where $q_1\approx1$, $q_2=0.78$, $E_1=20$\
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.88\columnwidth]{figures/regions.pdf}
+\includegraphics[width=0.8\columnwidth]{figures/regions.pdf}
 \caption{Example of the decisions of~\eqref{eq:rule} versus the slots since the last delivery and the on-board confidence $c$. The GS reports ``not flooded'' with $5\%$ initial doubt, the UAV is $1.2$\,km from the GS ($q_1\approx1$, $q_2=0.78$, $E_1=20$\,mJ, $E_2=190$\,mJ), $\lambda/V=2$\,J$^{-1}$ and $\nu=0.25$. (a) An agreeing label is never sent; the frame is uploaded once the status is old, unless the UAV is very confident. (b) A disagreeing frame is uploaded when the UAV is unsure and sent as a label when it is confident (Proposition~\ref{prop:threshold}). Steps come from the binned estimate of $\ee_{\rm g}(c)$.}
 \label{fig:regions}
 \end{figure}
@@ -696,8 +696,8 @@ Against the AoII-threshold policy, the outcome depends on the budget. At $0.25$\
 
 \begin{figure}[!tb]
 \centering
-\includegraphics[width=0.88\columnwidth]{figures/fig_path.pdf}
-\caption{Sample path of CA-DPP over $120$ slots at $\bar E=0.5$\,mJ/slot ($V=0.01$, $\nu=0.25$). (a) True state (shaded when flooded), GS status, and the slots in which the UAV sends a label (triangles) or uploads the frame (diamond). (b) AoII of the GS status (left axis) and the belief $\mu_t$ that the GS is wrong (right axis). The belief rises with each disagreeing frame until a label is sent, which resets the AoII.}
+\includegraphics[width=0.8\columnwidth]{figures/fig_path.pdf}
+\caption{Sample path of CA-DPP over $120$ slots at $\bar E=0.5$\,mJ/slot ($V=0.01$, $\nu=0.25$). (a) True state (shaded when flooded), GS status, and the slots in which the UAV sends a label (triangles) or uploads the frame (diamond). (b) AoII of the GS status (left axis) and the belief $\mu_t$ that the GS is wrong (right axis). The belief rises with each disagreeing frame until a label resets the AoII.}
 \label{fig:path}
 \end{figure}
 
@@ -706,7 +706,7 @@ Fig.~\ref{fig:path} shows how CA-DPP works. The AoII spike at the end shows the 
 \subsection{Where the Gains Come From}\label{res:gains}
 The two ablations answer Q2 and Q3 directly: the confidence-blind version removes the per-frame confidence, and the label-only version removes the raw uploads. At $0.25$\,mJ/slot the per-frame confidence matters: the confidence-blind version has a $15\%$ higher AoII ($p=0.001$). From $1$\,mJ/slot on, however, the confidence-blind version is $6\%$ to $15\%$ better than CA-DPP, and the difference is significant only at $1$\,mJ/slot ($p=0.02$). With this classifier, once energy is not scarce, the precision of each label value gives the belief most of what it needs. A plausible reason is that confident wrong labels come in runs, which the per-frame update over-counts.
 
-Raw uploads pay off at larger budgets. Without them, the AoII stays at $0.43$ from $1$\,mJ/slot on, since the label-only version runs out of useful labels to send and spends only $0.65$\,mJ/slot. CA-DPP spends the rest of the budget on uploads and reaches $0.39$ at $2$\,mJ/slot and $0.34$ at $10$\,mJ/slot ($p\le0.001$). The genie reaches $0.171$ with $0.96$\,mJ/slot; most of the gap comes from not observing $X(t)$.
+Raw uploads pay off at larger budgets. Without them, the AoII stays at $0.43$ from $1$\,mJ/slot on, since the label-only version runs out of useful labels to send and spends only $0.65$\,mJ/slot. CA-DPP spends the rest of the budget on uploads and reaches $0.39$ at $2$\,mJ/slot and $0.34$ at $10$\,mJ/slot ($p\le0.001$). The genie reaches $0.171$ with $0.96$\,mJ/slot; the gap comes mostly from not seeing $X(t)$.
 
 \subsection{Weak Classifiers, Blockage and Payload}\label{res:sens}
 \begin{figure*}[t]
@@ -723,8 +723,8 @@ As the share of blocked slots grows from $0$ to $50\%$ (Fig.~\ref{fig:sens}(b)),
 \subsection{The Weight $V$ and the Role of Mobility}\label{res:V}
 \begin{figure}[!tb]
 \centering
-\includegraphics[width=0.88\columnwidth]{figures/fig_V_mix.pdf}
-\caption{(a) Average AoII of CA-DPP (left axis) and energy spent (right axis, dashed) versus $V$ at $\bar E=0.5$\,mJ/slot. In the shaded range the energy stays within $4\%$ of the budget (dotted); a larger $V$ lowers the AoII but overspends. (b) Share of unblocked slots with a label or a raw upload versus the distance to the GS, at $\bar E=2$\,mJ/slot. Uploads dominate near the GS, and labels take over beyond about $0.8$\,km.}
+\includegraphics[width=0.8\columnwidth]{figures/fig_V_mix.pdf}
+\caption{(a) Average AoII of CA-DPP (left axis) and energy spent (right axis, dashed) versus $V$ at $\bar E=0.5$\,mJ/slot. In the shaded range the energy stays within $4\%$ of the budget (dotted); a larger $V$ lowers the AoII but overspends. (b) Share of unblocked slots with a label or a raw upload versus the distance to the GS, at $\bar E=2$\,mJ/slot. Uploads dominate near the GS; labels take over beyond about $0.8$\,km.}
 \label{fig:Vmix}
 \end{figure}
 
@@ -773,13 +773,13 @@ $0.8$ & $0.12$ & $-34\%$ & $-13\%$ & $-10\%$ & $-1\%$\\
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:corr} shows two effects. With independent errors, CA-DPP lowers the AoII of the threshold policy by about $23\%$ at both budgets. As the errors become more persistent, the advantage at $2$\,mJ/slot shrinks, because a run of wrong labels looks like strong evidence to a belief that counts each frame separately; with $\nu=1$ it disappears. The rule for $\nu$ recovers part of it, and at $0.5$\,mJ/slot it keeps CA-DPP ahead at every persistence. This suggests that the tie on the real traces at large budgets comes from the correlated errors, which the belief does not model, and a belief that models the error process (Section~\ref{sec:discussion}) is the natural next step.
+Table~\ref{tab:corr} shows two effects. With independent errors, CA-DPP lowers the AoII of the threshold policy by about $23\%$ at both budgets. As the errors become more persistent, the advantage at $2$\,mJ/slot shrinks, because a run of wrong labels looks like strong evidence to a belief that counts each frame separately; with $\nu=1$ it disappears. The rule for $\nu$ recovers part of it, and at $0.5$\,mJ/slot it keeps CA-DPP ahead at every persistence. This suggests that the tie on the real traces at large budgets comes from the correlated errors, which the belief does not model, and a belief that models the error process (Section~\ref{sec:discussion}) is the next step.
 
 \subsection{Robustness Checks}\label{res:robust}
 \emph{Choice of $\nu$.} The main results select $\nu$ on the tuning folds. Table~\ref{tab:nu} repeats the trace-driven evaluation with $\nu$ set instead by the correlation rule of Section~\ref{sec:update}, which gives $\nu$ between $0.31$ and $0.35$ for the base model and between $0.30$ and $0.42$ for the noisy variants; everything else, including the folds and the random numbers, is unchanged. With the rule, CA-DPP lowers the AoII of the threshold policy by $16\%$ (paired relative change) at $0.5$\,mJ/slot (paired $p=0.003$) and by $11\%$ and $15\%$ at $5$ and $10$\,mJ/slot ($p=0.015$ and $p=0.008$ on the five fold means), where the tuned version ties. At $0.25$\,mJ/slot, however, its AoII rises from $0.65$ to $0.87$ and it only ties with the threshold policy, and with the weakest classifier its AoII rises from $0.64$ to $0.78$, still $41\%$ below the threshold policy. The best discount therefore depends on the budget, and choosing it per budget on tuning data, as in the main results, is the safer default. Repeating the rule run with ten folds gives the same picture: a tie at $0.25$\,mJ/slot and reductions of $7\%$ at $0.5$\,mJ/slot and of $31\%$ and $40\%$ with the two weakest classifiers.
 
 \begin{table}[t]
-\caption{Average AoII of CA-DPP with $\nu$ selected on the tuning folds (main results) and with $\nu$ from the correlation rule, and of the AoII-threshold policy (mean of $20$ held-out runs, $5$-fold cross-validation). The last two rows use the two weakest on-board classifiers at $\bar E=0.5$\,mJ/slot.}\label{tab:nu}
+\caption{Average AoII of CA-DPP with $\nu$ selected on the tuning folds (main results) and with $\nu$ from the correlation rule, and of the AoII-threshold policy (mean of $20$ held-out runs, $5$-fold cross-validation). The last two rows use the two weakest classifiers at $\bar E=0.5$\,mJ/slot.}\label{tab:nu}
 \centering\footnotesize
 \begin{tabular}{@{}lccc@{}}
 \toprule
@@ -880,6 +880,7 @@ Vq_aG_a-Z(t)E_a(g)<V(\Delta_{\max}+1)-z^\star E_{\min}=0=f_0,
 \]
 so CA-DPP stays silent, and~\eqref{eq:Z} gives $Z(t+1)=\max\{Z(t)-\bar E,0\}\le Z(t)$. If $Z(t)\le z^\star$, then $Z(t+1)\le Z(t)+E_{\max}\le z^\star+E_{\max}$. Starting from $Z(0)=0$, induction on $t$ gives $Z(t)\le z^\star+E_{\max}=Z_{\max}$ for all $t$. Inserting this bound in~\eqref{eq:Zbound} gives the energy bound for every $T$, and taking expectations and $T\to\infty$ gives~\eqref{eq:budget}. \hfill$\blacksquare$
 
+\setlength{\bibsep}{0pt}
 \bibliographystyle{elsarticle-num}
 \bibliography{refs}
 
