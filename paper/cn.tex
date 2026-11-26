@@ -14,8 +14,8 @@
 \usepackage{lmodern}
 \usepackage{xurl}
 \setlength{\emergencystretch}{2em}
-\setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
-\setlength{\dbltextfloatsep}{12pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{10pt plus 2pt minus 2pt}
 \setlength{\floatsep}{10pt plus 2pt minus 2pt}
 \usepackage{tikz}
 \journal{Computer Networks}
@@ -824,12 +824,12 @@ The main weakness of CA-DPP at large budgets is Assumption~\ref{as:inf}(ii): the
 Nothing in the model is specific to UAVs or floods. The link and energy models fit any device whose channel varies predictably, such as a low-Earth-orbit satellite that sees a ground station only during passes. A non-binary scene needs a belief over the AoII and the current class, but the gains keep their structure: a right update removes AoII and a wrong one creates it.
 
 \subsection{Limitations}
-Five limitations remain. First, the policy is myopic; its gap to the optimal policy of (P) is bounded only numerically, in a model with independent errors (Section~\ref{res:opt}). Second, Proposition~\ref{prop:threshold} holds for the per-slot rule~\eqref{eq:rule} within each confidence bin; whether the optimal policy of (P) shares it is open. Third, Sentinel-2 imagery stands in for UAV frames (FLAME~\cite{shamsoshoara2021flame} and AIDER~\cite{kyrkou2020aider} are UAV alternatives). Fourth, the energy model is analytic; replacing the mean-SNR approximation~\eqref{eq:energy} by the exact fading average changes none of the conclusions (Section~\ref{res:robust}), but measured energy is still missing. Fifth, the imagery is not tied to the UAV position, so route planning is left out.
+Five limitations remain. First, the policy is myopic; its gap to the optimal policy of (P) is bounded only numerically, in a model with independent errors (Section~\ref{res:opt}). Second, Proposition~\ref{prop:threshold} holds for the per-slot rule~\eqref{eq:rule} within each confidence bin; whether the optimal policy of (P) shares it is open. Third, Sentinel-2 imagery stands in for UAV frames (FLAME~\cite{shamsoshoara2021flame} and AIDER~\cite{kyrkou2020aider} are UAV alternatives). Fourth, the energy model is analytic; the exact fading average changes none of the conclusions (Section~\ref{res:robust}), but measured energy is still missing. Fifth, the imagery is not tied to the UAV position, so route planning is left out.
 
 %% =====================================================================
 \section{Conclusion}\label{sec:concl}
 %% =====================================================================
-We studied status updates from an IoT device whose sensor is its own classifier, with a UAV mapping a flood as the running example. A belief over the AoII of the GS status, updated with the calibrated confidence of each frame, gives closed-form values of the three actions: agreeing labels are worthless, and the per-slot decision has confidence thresholds ordered silent, raw, label. CA-DPP, built on them, meets the energy budget on every sample path. On flood-mapping traces under chip-level cross-validation, it beats adaptations of three recent designs at every budget up to $5$\,mJ per slot, and an AoII-threshold policy when energy is scarce or the classifier is weak. Raw uploads pay off near the GS at larger budgets. Next steps are a belief that models correlated errors, and UAV imagery with measured energy.
+We studied status updates from an IoT device whose sensor is its own classifier, with a UAV mapping a flood as the running example. A belief over the AoII of the GS status, updated with the calibrated confidence of each frame, gives closed-form values of the three actions: agreeing labels are worthless, and the per-slot decision has confidence thresholds ordered silent, raw, label. CA-DPP, built on them, meets the energy budget on every sample path. On flood-mapping traces under chip-level cross-validation, it beats adaptations of three recent designs at every budget up to $5$\,mJ per slot, and an AoII-threshold policy when energy is scarce or the classifier is weak. Next steps are a belief that models correlated errors, and UAV imagery with measured energy.
 
 \section*{Declaration of competing interest}
 The author declares no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
@@ -870,7 +870,7 @@ both nonnegative because $q_2\le q_1$. By Lemma~\ref{lem:mono}, $f_2-f_0=Vq_2G_2
 (c) For fixed $\mu^-_t$ and $\Lambda_t$, $S^-_t$ appears in $N/D$ only in the numerator, with coefficient $Ay\ge0$. So $f_a-f_0$ is nondecreasing in $S^-_t$ for $a\in\{1,2\}$, and a slot in which some action beats silence still has one when $S^-_t$ grows. Each $f_a-f_0$ with $a\neq0$ decreases in $\lambda$, so a slot in which silence is optimal remains so when $\lambda$ grows. \hfill$\blacksquare$
 
 \section{Proof of Theorem~\ref{thm:budget}}\label{app:budget}
-We first bound the gains. Since the belief is truncated at $\Delta_{\max}$, $S_t=\E_{\pi_t}[(\Delta+1)\ind{\Delta>0}]\le\Delta_{\max}+1$. By~\eqref{eq:G1} and~\eqref{eq:G2}, $G_a\le S_t$ for $a\in\{1,2\}$, because the negative terms can be dropped and $(1-2w)(1-\ee_{\rm g})\le1$. With $q_a\le1$, $Vq_aG_a\le V(\Delta_{\max}+1)$.
+Since the belief is truncated at $\Delta_{\max}$, $S_t=\E_{\pi_t}[(\Delta+1)\ind{\Delta>0}]\le\Delta_{\max}+1$. By~\eqref{eq:G1} and~\eqref{eq:G2}, $G_a\le S_t$ for $a\in\{1,2\}$, because the negative terms can be dropped and $(1-2w)(1-\ee_{\rm g})\le1$. With $q_a\le1$, $Vq_aG_a\le V(\Delta_{\max}+1)$.
 
 Let $z^\star=V(\Delta_{\max}+1)/E_{\min}$. If $Z(t)>z^\star$, then for $a\in\{1,2\}$,
 \[
